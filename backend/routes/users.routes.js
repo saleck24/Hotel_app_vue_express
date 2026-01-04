@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const usersController = require("../controllers/users.controller");
 const { verifyToken, isAdmin } = require("../middleware/auth.middleware");
+const checkRole = require("../middleware/role.middleware");
+
 
 /**
  * @swagger
@@ -164,7 +166,7 @@ router.post("/auth/reset-password", usersController.resetPassword);
 router.post(
   "/admin/create",
   verifyToken,
-  isAdmin,
+  checkRole("ADMIN"),
   usersController.createAdmin
 );
 
@@ -185,11 +187,8 @@ router.post(
 router.get(
   "/users",
   verifyToken,
-  isAdmin,
+  checkRole("ADMIN"),
   usersController.getAllUsers
 );
-
-
-
 
 module.exports = router;
