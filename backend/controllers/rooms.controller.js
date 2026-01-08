@@ -11,9 +11,9 @@ exports.createRoom = async (req, res) => {
       capacite: req.body.capacite,
       statut: req.body.statut || "DISPONIBLE",
       description: req.body.description,
-      image1: images[0]?.path || null,
-      image2: images[1]?.path || null,
-      image3: images[2]?.path || null
+      image1: images[0]?.filename || null,
+      image2: images[1]?.filename || null,
+      image3: images[2]?.filename || null
     };
 
     const result = await Room.create(roomData);
@@ -67,9 +67,9 @@ exports.updateRoom = async (req, res) => {
       capacite: req.body.capacite,
       statut: req.body.statut,
       description: req.body.description,
-      image1: images[0]?.path || req.body.image1,
-      image2: images[1]?.path || req.body.image2,
-      image3: images[2]?.path || req.body.image3
+      image1: images[0]?.filename || req.body.image1,
+      image2: images[1]?.filename || req.body.image2,
+      image3: images[2]?.filename || req.body.image3
     };
 
     await Room.update(req.params.id, roomData);

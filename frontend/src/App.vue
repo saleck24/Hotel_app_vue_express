@@ -4,5 +4,10 @@
 
 <script setup>
 </script>
+<style>
+html.dark{
+  color-scheme: dark;
+}
+</style>
 
 

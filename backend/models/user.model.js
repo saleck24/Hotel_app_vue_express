@@ -50,6 +50,39 @@ updatePassword: async (id, password) => {
   );
 },
 
+updateProfile: async(id, data) => {
+  const fields = [];
+  const values = [];
+
+  if (data.nom !== undefined) {
+    fields.push("nom = ?");
+    values.push(data.nom);
+  }
+
+  if (data.profile_image !== undefined) {
+    fields.push("profile_image = ?");
+    values.push(data.profile_image);
+  }
+
+  values.push(id);
+
+  const sql = `
+    UPDATE users
+    SET ${fields.join(", ")}
+    WHERE id = ?
+  `;
+
+  return bd.query(sql, values);
+},
+
+  findById: async(id) => {
+    const [rows] = await bd.query(
+      "SELECT id, nom, role, profile_image FROM users WHERE id = ?",
+      [id]
+    );
+    return rows[0];
+  },
+
 };
 
 module.exports = User;

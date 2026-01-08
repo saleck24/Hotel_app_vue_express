@@ -32,7 +32,7 @@ const Reservation = {
   // Récupérer toutes les réservations en attente
   findAllPending: () => {
     const sql = `
-      SELECT r.*, u.nom, ro.numero
+      SELECT r.*, u.nom, ro.numero, ro.type, ro.prix, ro.description, ro.image1,ro.image2, ro.image3
       FROM reservations r
       JOIN users u ON u.id = r.utilisateur_id
       JOIN rooms ro ON ro.id = r.chambre_id
