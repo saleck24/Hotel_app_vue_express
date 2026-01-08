@@ -3,6 +3,7 @@ const router = express.Router();
 const usersController = require("../controllers/users.controller");
 const { verifyToken, isAdmin } = require("../middleware/auth.middleware");
 const checkRole = require("../middleware/role.middleware");
+const createUploader = require("../middleware/uploads.middleware");
 
 
 /**
@@ -189,6 +190,50 @@ router.get(
   verifyToken,
   checkRole("ADMIN"),
   usersController.getAllUsers
+);
+
+
+/**
+ * @swagger
+ * /api/users/profile:
+ *   put:
+ *     summary: Modifier le profil utilisateur
+ *     description: |
+ *       Permet à un utilisateur authentifié de modifier son profil.
+ *       - Mise à jour du nom
+ *       - Upload d'une image de profil
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               profile_image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Profil mis à jour avec succès
+ *       401:
+ *         description: Non autorisé (token manquant ou invalide)
+ *       500:
+ *         description: Erreur serveur
+ */
+//Route pour modifier le profile
+const uploadProfiles = createUploader("profiles");
+router.put(
+  "/users/profile",
+  verifyToken,
+  checkRole("ADMIN","CLIENT"),
+  uploadProfiles.single("profile_image"),
+  usersController.updateProfile
 );
 
 module.exports = router;

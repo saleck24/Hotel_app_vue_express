@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
+const createUploader = require("../middleware/uploads.middleware");
 
 const {
   createRoom,
@@ -12,7 +13,7 @@ const {
 
 const { verifyToken } = require("../middleware/auth.middleware");
 const checkRole = require("../middleware/role.middleware");
-const upload = require("../middleware/uploads.middleware");
+//const upload = require("../middleware/uploads.middleware");
 
 /**
  * @swagger
@@ -77,11 +78,12 @@ const upload = require("../middleware/uploads.middleware");
  *         description: Accès interdit
  */
 // ADMIN uniquement
+const uploadRooms = createUploader("rooms");
 router.post(
   "/",
   verifyToken,
   checkRole("ADMIN"),
-  upload.array("images", 3),
+  uploadRooms.array("images", 3),
   [
     body("numero")
       .notEmpty().withMessage("Le numéro est requis")
@@ -137,22 +139,16 @@ router.post(
  *             properties:
  *               numero:
  *                 type: string
- *                 example: "A101"
  *               type:
  *                 type: string
- *                 example: "Double"
  *               prix:
  *                 type: number
- *                 example: 120
  *               capacite:
  *                 type: number
- *                 example: 2
  *               statut:
  *                 type: string
- *                 example: "DISPONIBLE"
  *               description:
  *                 type: string
- *                 example: "Chambre climatisée avec vue sur la mer"
  *               images:
  *                 type: array
  *                 items:
@@ -170,7 +166,7 @@ router.post(
  *         description: Erreur serveur
  */
 // ADMIN uniquement
-router.put("/:id", verifyToken, checkRole("ADMIN"), upload.array("images", 3), updateRoom);
+router.put("/:id", verifyToken, checkRole("ADMIN"), uploadRooms.array("images", 3), updateRoom);
 
 /**
  * @swagger

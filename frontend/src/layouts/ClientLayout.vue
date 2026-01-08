@@ -25,13 +25,13 @@
 
       <!-- Menu -->
       <nav class="p-4 space-y-2">
-        <RouterLink to="/admin/dashboard" class="menu-link text-gray-700 dark:text-violetDark">
+        <RouterLink to="/client/dashboard" class="menu-link text-gray-700 dark:text-violetDark">
           <HomeIcon class="menu-icon" />
           <span>Accueil</span>
         </RouterLink>
 
-        <RouterLink to="/admin/reservations" class="menu-link text-gray-700 dark:text-violetDark">
-          Réservations à valider
+        <RouterLink to="/client/reservations" class="menu-link text-gray-700 dark:text-violetDark">
+          Mes réservations
         </RouterLink>
 
         <!-- Paramètres -->
@@ -42,7 +42,7 @@
 
         <!-- Accordion -->
         <div v-show="showSettings" class="ml-6 space-y-2">
-          <RouterLink to="/admin/profile" class="submenu-link text-gray-700 dark:text-violetDark">
+          <RouterLink to="/client/profile" class="submenu-link text-gray-700 dark:text-violetDark">
             <UserIcon class="submenu-icon" />
             Modifier profil
           </RouterLink>

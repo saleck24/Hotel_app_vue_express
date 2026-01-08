@@ -117,6 +117,7 @@ exports.login = async (req, res) => {
         id: user.id,
         nom: user.nom,
         role: user.role,
+        profile_image: user.profile_image,
       },
     });
   } catch (error) {
@@ -199,4 +200,42 @@ exports.resetPassword = async (req, res) => {
   await User.updatePassword(user.id, hashedPassword);
 
   res.json({ message: "Mot de passe réinitialisé avec succès" });
+};
+
+//Méthode qui met à jour le profile.
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { nom } = req.body;
+
+    let profileImagePath = null;
+
+    if (req.file) {
+      profileImagePath = `/uploads/profiles/${req.file.filename}`;
+    }
+
+    // Mise à jour utilisateur
+    await User.updateProfile(userId, {
+      nom,
+      profile_image: profileImagePath,
+    });
+
+    // Récupérer l'utilisateur mis à jour
+    const updatedUser = await User.findById(userId);
+
+    res.json({
+      message: "Profil mis à jour avec succès",
+      user: {
+        id: updatedUser.id,
+        nom: updatedUser.nom,
+        role: updatedUser.role,
+        profile_image: updatedUser.profile_image,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Erreur lors de la mise à jour du profil",
+      error: error.message,
+    });
+  }
 };
