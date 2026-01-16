@@ -1,0 +1,45 @@
+@import './reset.css';
+@import './variables.css';
+
+/* Global Utility Classes */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #132036;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #b08d4d;
+}
+
+.text-heading {
+    font-family: var(--font-heading);
+}
