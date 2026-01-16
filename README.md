@@ -1,48 +1,5 @@
-# Hotel_App - Application de gestion d'hôtel
+# Vue 3 + Vite
 
-**Hotel_App** est une application web de gestion d'hôtel développée avec **Express.js** pour le backend et **Vue.js + Vite** pour le frontend.
-Elle permet aux administrateurs de gérer les chambres, valider les réservations, visualiser des statistiques et discuter avec les clients via un chat en temps réel.
+This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
----
-
-## 🛠 Technologies utilisées
-
-- **Backend :** Node.js, Express.js  
-- **Frontend :** Vue.js + Vite, HTML, CSS, JavaScript  
-- **Base de données :** MySQL  
-- **Chat en temps réel :** WebSocket  
-- **IDE de développement :** Visual Studio Code  
-- **Serveur local :** WampServer (MySQL)
-
----
-
-## ⚙️ Fonctionnalités principales
-
-### Gestion des chambres
-- Ajouter, modifier et supprimer des chambres  
-- Visualiser toutes les chambres avec détails : numéro, type, prix, capacité, statut, description  
-
-### Gestion des réservations
-- Visualiser les réservations en attente  
-- Valider les réservations directement depuis le dashboard  
-- Suivi du statut des réservations : `EN_ATTENTE`, `CONFIRMEE`  
-
-### Statistiques
-- Taux d’occupation des chambres  
-- Revenus totaux générés  
-- Avis clients : moyenne et nombre d'avis  
-
-### Chat Admin
-- Discussion en temps réel entre l’administrateur et les clients  
-
-### Sécurité
-- Authentification des utilisateurs  
-- Gestion des sessions pour sécuriser l’accès aux pages administratives  
-
----
-
-## 🚀 Installation et configuration
-
-1. **Cloner le projet :**
-```bash
-git clone https://github.com/<votre-username>/Hotel_App.git
+Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
