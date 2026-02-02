@@ -1,4 +1,5 @@
 <template>
+<<<<<<< Updated upstream
   <div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-64 bg-white text-gray-900 dark:bg-gray-800 dark:text-violetDark shadow-md border-r border-gray-300 dark:border-gray-600">
@@ -62,11 +63,26 @@
     <!-- Main -->
     <main class="flex-1 p-6">
       <RouterView />
+=======
+  <div class="layout-dashboard">
+    <TheSidebar role="admin" />
+    <main class="dashboard-content">
+      <header class="dashboard-header">
+        <h2 class="page-title">{{ $route.name || 'Dashboard' }}</h2>
+        <div class="user-info">
+          <span>Admin</span>
+        </div>
+      </header>
+      <div class="content-wrapper">
+        <slot />
+      </div>
+>>>>>>> Stashed changes
     </main>
   </div>
 </template>
 
 <script setup>
+<<<<<<< Updated upstream
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import API from "../services/api"; 
@@ -151,5 +167,41 @@ const logout = () => {
 .dark .menu-link:hover {
   background-color: #374151; /* gray-700 */
   transform: translateX(4px);
+=======
+import TheSidebar from '@/components/layout/TheSidebar.vue'
+</script>
+
+<style scoped>
+.layout-dashboard {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.dashboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  background-color: white;
+  padding: var(--spacing-md) var(--spacing-xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.page-title {
+  text-transform: capitalize;
+  font-size: 1.25rem;
+}
+
+.content-wrapper {
+  padding: var(--spacing-xl);
+  flex: 1;
+  overflow-y: auto;
+>>>>>>> Stashed changes
 }
 </style>
