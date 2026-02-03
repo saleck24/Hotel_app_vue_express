@@ -7,9 +7,10 @@
 
 <script setup>
 import { useThemeStore } from '../stores/theme'
+import { storeToRefs } from 'pinia'
 import { MoonIcon, SunIcon } from '@heroicons/vue/24/outline'
 
 const theme = useThemeStore()
-const isDark = theme.isDark
-const toggle = theme.toggle
+const { isDark } = storeToRefs(theme)
+const { toggle } = theme
 </script>

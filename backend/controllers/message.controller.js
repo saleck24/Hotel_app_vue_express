@@ -39,3 +39,14 @@ exports.getMessages = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
+
+// Récupérer la liste des conversations
+exports.getConversations = async (req, res) => {
+  try {
+    const rows = await Message.getConversations(req.user.id);
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error("Erreur getConversations :", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

@@ -42,6 +42,18 @@ const Reservation = {
     return bd.query(sql);
   },
 
+  // Récupérer toutes les réservations (ADMIN)
+  findAll: () => {
+    const sql = `
+      SELECT r.*, u.nom, ro.numero, ro.type
+      FROM reservations r
+      JOIN users u ON u.id = r.utilisateur_id
+      JOIN rooms ro ON ro.id = r.chambre_id
+      ORDER BY r.created_at DESC
+    `;
+    return bd.query(sql);
+  },
+
   // Mettre à jour le statut d'une réservation
   updateStatut: (id, statut) => {
     const sql = "UPDATE reservations SET statut = ? WHERE id = ?";

@@ -74,6 +74,9 @@ router.post("/auth/register", usersController.createClient);
 // Login (public)
 router.post("/auth/login", usersController.login);
 
+// Logout
+router.post("/auth/logout", usersController.logout);
+
 /**
  * @swagger
  * /api/auth/forgot-password:
@@ -192,6 +195,13 @@ router.get(
   usersController.getAllUsers
 );
 
+// Lister les admins (accessible par tous pour le chat)
+router.get(
+  "/admins",
+  verifyToken,
+  usersController.getAdmins
+);
+
 
 /**
  * @swagger
@@ -231,7 +241,7 @@ const uploadProfiles = createUploader("profiles");
 router.put(
   "/users/profile",
   verifyToken,
-  checkRole("ADMIN","CLIENT"),
+  checkRole("ADMIN", "CLIENT"),
   uploadProfiles.single("profile_image"),
   usersController.updateProfile
 );

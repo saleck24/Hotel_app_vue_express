@@ -22,7 +22,12 @@ const Room = {
 
   findAll: (limit, offset) => {
     const sql = `SELECT * FROM rooms ORDER BY id DESC LIMIT ? OFFSET ?`;
-    return bd.query(sql, [limit, offset]); // renvoie une promesse
+    return bd.query(sql, [limit, offset]);
+  },
+
+  findAllWithoutLimit: () => {
+    const sql = `SELECT * FROM rooms ORDER BY id DESC`;
+    return bd.query(sql);
   },
 
   findById: (id) => {
@@ -44,6 +49,7 @@ const Room = {
         image3 = ?
       WHERE id = ?
     `;
+
     return bd.query(sql, [
       data.numero,
       data.type,
@@ -56,6 +62,11 @@ const Room = {
       data.image3,
       id
     ]);
+  },
+
+  updateStatut: (id, statut) => {
+    const sql = `UPDATE rooms SET statut = ? WHERE id = ?`;
+    return bd.query(sql, [statut, id]);
   },
 
   delete: (id) => {

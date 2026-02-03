@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { sendMessage, getMessages } = require("../controllers/message.controller");
+const { sendMessage, getMessages, getConversations } = require("../controllers/message.controller");
 const { verifyToken } = require("../middleware/auth.middleware");
 const checkRole = require("../middleware/role.middleware");
 
@@ -39,6 +39,9 @@ const checkRole = require("../middleware/role.middleware");
  */
 // Envoyer un message
 router.post("/", verifyToken, sendMessage);
+
+// Récupérer la liste des conversations
+router.get("/conversations", verifyToken, getConversations);
 
 
 /**

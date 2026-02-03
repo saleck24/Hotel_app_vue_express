@@ -39,8 +39,3 @@
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
-
-/* Dark Mode Support (optional base) */
-@media (prefers-color-scheme: dark) {
-    /* We can enable this later if requested, keeping light mode default for now to match classic hotel vibes */
-}

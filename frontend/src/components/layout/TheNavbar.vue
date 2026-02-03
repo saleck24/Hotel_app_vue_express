@@ -1,31 +1,13 @@
 <template>
   <header class="navbar">
     <div class="container navbar-content">
-      <RouterLink to="/" class="brand">
+      <RouterLink to="/" class="brand" style="margin-left: 2rem">
         <span class="brand-text">Hotel<span class="brand-accent">App</span></span>
       </RouterLink>
 
-      <nav class="nav-links">
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/rooms">Rooms</RouterLink>
-        <RouterLink to="/about">About Us</RouterLink>
-      </nav>
-
       <div class="nav-actions">
-        <template v-if="authStore.isAuthenticated">
-          <!-- Quick link to dashboard based on role -->
-          <RouterLink 
-            :to="authStore.isAdmin ? '/admin' : '/client'" 
-            class="btn btn-primary"
-          >
-            Dashboard
-          </RouterLink>
-          <button @click="handleLogout" class="btn btn-outline" style="margin-left: 0.5rem">Logout</button>
-        </template>
-        <template v-else>
-          <RouterLink to="/login" class="btn btn-outline">Login</RouterLink>
-          <RouterLink to="/register" class="btn btn-primary" style="margin-left: 0.5rem">Book Now</RouterLink>
-        </template>
+        <RouterLink to="/login" class="nav-login-link">Connexion</RouterLink>
+        <RouterLink to="/register" class="btn btn-primary" style="margin-left: 1.5rem">Réserver</RouterLink>
       </div>
     </div>
   </header>
@@ -63,17 +45,7 @@ function handleLogout() {
   width: 100%;
 }
 
-.brand {
-  text-decoration: none;
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-family: var(--font-heading);
-  color: var(--color-primary);
-}
 
-.brand-accent {
-  color: var(--color-secondary);
-}
 
 .nav-links {
   display: flex;
@@ -95,6 +67,18 @@ function handleLogout() {
 .nav-actions {
   display: flex;
   align-items: center;
+}
+
+.nav-login-link {
+  color: #1a2a44;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.3s;
+  font-size: 1.0625rem;
+}
+
+.nav-login-link:hover {
+  color: #c5a059;
 }
 
 /* Mobile responsive adjustments can be added here with media queries */

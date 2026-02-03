@@ -42,8 +42,8 @@ exports.createReservation = async (req, res) => {
   }
 };
 
-  // Récupérer réservations utilisateur
- exports.getMyReservations = async (req, res) => {
+// Récupérer réservations utilisateur
+exports.getMyReservations = async (req, res) => {
   try {
     // findByUser retourne une promesse [rows, fields]
     const result = await Reservation.findByUser(req.user.id);
@@ -54,8 +54,8 @@ exports.createReservation = async (req, res) => {
     res.status(500).json({ message: "Erreur récupération réservations" });
   }
 };
-  // Récupérer réservations en attente
-  exports.getPendingReservations = async (req, res) => {
+// Récupérer réservations en attente
+exports.getPendingReservations = async (req, res) => {
   try {
     const result = await Reservation.findAllPending(); // result = [rows, fields]
     const rows = result[0]; // récupère juste les données
@@ -66,9 +66,32 @@ exports.createReservation = async (req, res) => {
   }
 };
 
+// Récupérer TOUTES les réservations (ADMIN)
+exports.getAllReservations = async (req, res) => {
+  try {
+    const [rows] = await Reservation.findAll();
+    res.json(rows);
+  } catch (err) {
+    console.error("Erreur getAllReservations :", err);
+    res.status(500).json({ message: "Erreur récupération réservations" });
+  }
+};
+
+// Annuler réservation par Admin
+exports.annulerReservationAdmin = async (req, res) => {
+  const reservationId = req.params.id;
+  try {
+    await Reservation.updateStatut(reservationId, "ANNULEE");
+    res.json({ message: "Réservation annulée par l'administrateur" });
+  } catch (err) {
+    console.error("Erreur annulerReservationAdmin :", err);
+    res.status(500).json({ message: "Erreur lors de l'annulation" });
+  }
+};
 
 
- exports.validerReservation = async (req, res) => {
+
+exports.validerReservation = async (req, res) => {
   const reservationId = req.params.id;
 
   try {
@@ -85,6 +108,10 @@ exports.createReservation = async (req, res) => {
     const reservation = results[0];
 
     await Reservation.updateStatut(reservationId, "CONFIRMEE");
+
+    // Update explicitly to OCCUPEE and log it
+    console.log(`[Validation] Updating room ${reservation.chambre_id} status to OCCUPEE`);
+    await Room.updateStatut(reservation.chambre_id, "OCCUPEE");
 
     // Générer le PDF dans un Buffer
     const pdfBuffer = await new Promise((resolve, reject) => {
@@ -108,31 +135,35 @@ exports.createReservation = async (req, res) => {
     });
 
     // Envoi email
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"Hotel App" <${process.env.EMAIL_USER}>`,
-      to: reservation.email,
-      subject: "Reçu de réservation",
-      text: "Bonjour, veuillez trouver votre reçu de réservation en pièce jointe.",
-      html: `<p>Bonjour,</p><p>Veuillez trouver votre reçu de réservation en pièce jointe.</p><p>Cordialement,</p><p>Hotel_App</p>`,
-      attachments: [
-        {
-          filename: `Recu_Reservation_${reservation.id}.pdf`,
-          content: pdfBuffer,
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
         },
-      ],
-    });
+      });
 
-    res.json({ message: "Réservation confirmée et email envoyé avec le reçu" });
+      await transporter.sendMail({
+        from: `"Hotel App" <${process.env.EMAIL_USER}>`,
+        to: reservation.email,
+        subject: "Reçu de réservation",
+        text: "Bonjour, veuillez trouver votre reçu de réservation en pièce jointe.",
+        html: `<p>Bonjour,</p><p>Veuillez trouver votre reçu de réservation en pièce jointe.</p><p>Cordialement,</p><p>Hotel_App</p>`,
+        attachments: [
+          {
+            filename: `Recu_Reservation_${reservation.id}.pdf`,
+            content: pdfBuffer,
+          },
+        ],
+      });
+    } catch (emailError) {
+      console.error("Erreur envoi email :", emailError);
+    }
+
+    res.json({ message: "Réservation confirmée (Statut Room mis à jour)" });
 
   } catch (err) {
     console.error(err);
@@ -141,7 +172,7 @@ exports.createReservation = async (req, res) => {
 };
 
 
-  exports.annulerReservation = async (req, res) => {
+exports.annulerReservation = async (req, res) => {
   const reservationId = req.params.id;
   const userId = req.user.id;
 

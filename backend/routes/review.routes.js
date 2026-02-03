@@ -118,4 +118,18 @@ router.get("/room/:roomId", verifyToken, checkRole("ADMIN", "CLIENT"), getReview
  */
 router.get("/me", verifyToken, checkRole("CLIENT"), getReviewsByUser);
 
+/**
+ * @swagger
+ * /api/reviews:
+ *   get:
+ *     summary: Récupérer tous les feedbacks (ADMIN)
+ *     tags: [Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste de tous les feedbacks
+ */
+router.get("/", verifyToken, checkRole("ADMIN"), require("../controllers/reviews.controller").getAllReviews);
+
 module.exports = router;

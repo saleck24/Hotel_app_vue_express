@@ -1,12 +1,19 @@
 <template>
   <div class="room-details container section-padding">
-    <div v-if="loading" class="text-center">Loading...</div>
+    <div v-if="loading" class="text-center">Chargement...</div>
     <div v-else-if="error" class="text-center error">{{ error }}</div>
     <div v-else-if="currentRoom" class="room-content">
       
       <div class="room-gallery">
-        <img :src="currentRoom.images?.[0] || 'https://placehold.co/800x500?text=Room'" :alt="currentRoom.type" class="main-image">
-        <!-- Add more images grid if available -->
+        <div class="images-row">
+          <img 
+            v-for="(image, index) in roomImages" 
+            :key="index"
+            :src="image" 
+            :alt="`${currentRoom.type} - Image ${index + 1}`" 
+            class="gallery-image"
+          >
+        </div>
       </div>
 
       <div class="room-info-grid">
@@ -15,8 +22,8 @@
           <p class="room-ref">Room #{{ currentRoom.numero }}</p>
           
           <div class="room-specs">
-            <span class="spec-item">Capacity: {{ currentRoom.capacite }} Person(s)</span>
-            <span class="spec-item">Status: <span :class="statusClass">{{ currentRoom.statut }}</span></span>
+            <span class="spec-item">Capacité: {{ currentRoom.capacite }} Personne(s)</span>
+            <span class="spec-item">Statut: <span :class="statusClass">{{ currentRoom.statut }}</span></span>
           </div>
 
           <div class="room-description">
@@ -25,17 +32,17 @@
           </div>
 
           <div class="price-tag">
-            ${{ currentRoom.prix }} <span class="per-night">/ night</span>
+            {{ currentRoom.prix }} MRU <span class="per-night">/ nuit</span>
           </div>
         </div>
 
         <div class="booking-column">
           <div class="booking-card">
-            <h3>Book this Room</h3>
+            <h3>Réserver cette chambre</h3>
             <form @submit.prevent="handleBooking">
               <BaseInput
                  id="date-start"
-                 label="Check-in Date"
+                 label="Date d'arrivée"
                  type="date"
                  v-model="bookingForm.date_debut"
                  required
@@ -43,7 +50,7 @@
               />
               <BaseInput
                  id="date-end"
-                 label="Check-out Date"
+                 label="Date de départ"
                  type="date"
                  v-model="bookingForm.date_fin"
                  required
@@ -51,7 +58,7 @@
               />
               
               <div v-if="!isAuthenticated" class="auth-notice">
-                <p>Please <RouterLink to="/login">login</RouterLink> to book this room.</p>
+                <p>Veuillez vous <RouterLink to="/login">connecter</RouterLink> pour réserver cette chambre.</p>
               </div>
               
               <BaseButton 
@@ -61,11 +68,18 @@
                 :loading="bookingLoading"
                 :disabled="currentRoom.statut !== 'DISPONIBLE'"
               >
-                {{ currentRoom.statut === 'DISPONIBLE' ? 'Confirm Reservation' : 'Unavailable' }}
+                {{ currentRoom.statut === 'DISPONIBLE' ? 'Confirmer la réservation' : 'Indisponible' }}
               </BaseButton>
 
               <p v-if="bookingError" class="error-msg">{{ bookingError }}</p>
-              <p v-if="bookingSuccess" class="success-msg">Reservation request sent! View in Dashboard.</p>
+              <p v-if="bookingSuccess" class="success-msg">Demande de réservation envoyée ! Voir le tableau de bord.</p>
+              <a v-if="bookingSuccess"
+                :href="whatsappLink"
+                target="_blank"
+                class="whatsapp-btn"
+              >
+                Contacter Admin sur WhatsApp
+              </a>
             </form>
           </div>
         </div>
@@ -125,6 +139,33 @@ async function handleBooking() {
   }
 }
 
+const roomImages = computed(() => {
+  if (!currentRoom.value || !currentRoom.value.images) {
+    return ['https://placehold.co/400x300?text=Room']
+  }
+  const images = currentRoom.value.images.filter(img => img && img !== 'https://placehold.co/600x400?text=Room')
+  return images.length > 0 ? images : ['https://placehold.co/400x300?text=Room']
+})
+const totalPrice = computed(() => {
+  if (!bookingForm.value.date_debut || !bookingForm.value.date_fin || !currentRoom.value) return 0
+  
+  const start = new Date(bookingForm.value.date_debut)
+  const end = new Date(bookingForm.value.date_fin)
+  const diffTime = end - start
+  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  return days > 0 ? days * currentRoom.value.prix : 0
+})
+
+const whatsappLink = computed(() => {
+  if (!currentRoom.value) return '#'
+
+  const message = `Bonjour, j'ai effectué une réservation de la chambre N°${currentRoom.value.numero} pendant la période ${bookingForm.value.date_debut} / ${bookingForm.value.date_fin} d'un montant de ${totalPrice.value} MRU`
+
+  return `https://wa.me/22243455259?text=${encodeURIComponent(message)}`
+})
+
+
 onMounted(() => {
   roomStore.fetchRoom(route.params.id)
 })
@@ -136,12 +177,29 @@ onMounted(() => {
   padding-bottom: var(--spacing-2xl);
 }
 
-.room-gallery .main-image {
-  width: 100%;
-  height: 500px;
-  object-fit: cover;
-  border-radius: var(--radius-lg);
+.room-gallery {
   margin-bottom: var(--spacing-xl);
+}
+
+.images-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+  padding-left: 2rem;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s;
+}
+
+.gallery-image:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
 }
 
 .room-info-grid {
@@ -233,9 +291,36 @@ onMounted(() => {
 
 .w-full { width: 100%; }
 
+.info-column {
+  padding-left: 2rem;
+}
+.whatsapp-btn {
+  display: block;
+  margin-top: var(--spacing-md);
+  background: #25D366;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.whatsapp-btn:hover {
+  background: #1ebe5d;
+}
+
+
 @media (max-width: 768px) {
   .room-info-grid {
     grid-template-columns: 1fr;
+  }
+  .info-column {
+    padding-left: 0;
+  }
+  .images-row {
+    padding-left: 0;
   }
 }
 </style>

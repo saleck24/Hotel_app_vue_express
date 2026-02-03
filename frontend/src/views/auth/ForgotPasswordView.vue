@@ -2,32 +2,32 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       <div class="auth-header">
-        <h1 class="text-heading">Forgot Password</h1>
-        <p>Enter your email to receive a reset link</p>
+        <h1 class="text-heading">Mot de passe oublié</h1>
+        <p>Entrez votre e-mail pour recevoir un lien de réinitialisation</p>
       </div>
 
       <form @submit.prevent="handleSubmit" v-if="!success">
         <BaseInput
           id="email"
-          label="Email Address"
+          label="Adresse e-mail"
           type="email"
           v-model="email"
           required
-          placeholder="you@example.com"
+          placeholder="votre@exemple.com"
         />
 
         <BaseButton type="submit" class="w-full" :loading="loading">
-          Send Reset Link
+          Envoyer le lien
         </BaseButton>
         
         <div class="form-actions mt-4">
-           <RouterLink to="/login" class="back-link">Back to Login</RouterLink>
+           <RouterLink to="/login" class="back-link">Retour à la connexion</RouterLink>
         </div>
       </form>
 
       <div v-else class="success-message">
-        <p>If an account exists for <strong>{{ email }}</strong>, you will receive password reset instructions.</p>
-        <RouterLink to="/login" class="btn btn-primary w-full mt-4">Return to Login</RouterLink>
+        <p>Si un compte existe pour <strong>{{ email }}</strong>, vous recevrez des instructions de réinitialisation.</p>
+        <RouterLink to="/login" class="btn btn-primary w-full mt-4">Retour à la connexion</RouterLink>
       </div>
 
       <p v-if="error" class="error-message">{{ error }}</p>
@@ -56,7 +56,7 @@ async function handleSubmit() {
   } catch (err) {
     // Even if it fails (security), we might want to show success or a generic error
     // But for dev, let's show detail
-    error.value = err.response?.data?.message || 'Failed to process request.'
+    error.value = err.response?.data?.message || "Échec du traitement de la demande."
   } finally {
     loading.value = false
   }

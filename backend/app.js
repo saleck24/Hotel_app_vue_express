@@ -1,11 +1,24 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 
 const app = express();
-app.use(cors());
+
+// En-têtes de sécurité
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+}));
+
+// Configuration CORS - Restriction à l'origine du frontend pour la sécurité
+app.use(cors({
+  origin: "http://localhost:5173", // URL du frontend
+  credentials: true
+}));
 
 app.use(express.json());
+app.use(cookieParser());
 
 const rateLimit = require("express-rate-limit");
 
@@ -19,7 +32,7 @@ app.use("/api", apiLimiter);
 
 // Route racine
 app.get("/", (req, res) => {
-  res.send("Backend Hotel App is running 🚀");
+  res.send("Le Backend de l'Hôtel App est en cours d'exécution 🚀");
 });
 
 // Route bd
@@ -46,6 +59,10 @@ app.use("/api/messages", messageRoutes);
 //Route Review
 const reviewRoutes = require("./routes/review.routes");
 app.use("/api/reviews", reviewRoutes);
+
+// Route Stats
+const statsRoutes = require("./routes/stats.routes");
+app.use("/api/stats", statsRoutes);
 
 
 // Swagger

@@ -87,6 +87,22 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.getAdmins = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    const admins = users.filter(u => u.role === 'ADMIN').map(u => ({
+      id: u.id,
+      nom: u.nom
+    }));
+    res.json(admins);
+  } catch (error) {
+    res.status(500).json({
+      message: "Erreur récupération administrateurs",
+      error: error.message,
+    });
+  }
+};
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -98,21 +114,28 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
-  
+
     // COMPARAISON BCRYPT
     const validPassword = await bcrypt.compareSync(password, user.password);
-    if (!validPassword){
+    if (!validPassword) {
       return res.status(401).json({ message: "Mot de passe incorrect" });
     }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role }, 
-      process.env.JWT_SECRET, 
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-     res.json({
-      token,
+    // Définir le cookie HTTP-Only
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Sécurisé uniquement en production (HTTPS)
+      sameSite: "strict",
+      maxAge: 3600000, // 1 heure en ms
+    });
+
+    res.json({
       user: {
         id: user.id,
         nom: user.nom,
@@ -123,6 +146,11 @@ exports.login = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Erreur login", error: error.message });
   }
+};
+
+exports.logout = async (req, res) => {
+  res.clearCookie("token");
+  res.json({ message: "Déconnexion réussie" });
 };
 
 //fonction mot de passe oublié
@@ -145,7 +173,7 @@ exports.forgotPassword = async (req, res) => {
 
   // Lien pour email
   const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
-  
+
   // Créer transporteur email
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -167,7 +195,7 @@ exports.forgotPassword = async (req, res) => {
           <p>Cliquez sur ce lien pour réinitialiser votre mot de passe :</p>
            <a href="${resetLink}">${resetLink}</a>
            <p>Ce lien expire dans 5 minutes.</p>`,
-           
+
   };
 
   try {
@@ -206,19 +234,23 @@ exports.resetPassword = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { nom } = req.body;
+    const { nom, email, password } = req.body;
 
     let profileImagePath = null;
-
     if (req.file) {
       profileImagePath = `/uploads/profiles/${req.file.filename}`;
     }
 
+    const updateData = {};
+    if (nom) updateData.nom = nom;
+    if (email) updateData.email = email;
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+    if (profileImagePath) updateData.profile_image = profileImagePath;
+
     // Mise à jour utilisateur
-    await User.updateProfile(userId, {
-      nom,
-      profile_image: profileImagePath,
-    });
+    await User.updateProfile(userId, updateData);
 
     // Récupérer l'utilisateur mis à jour
     const updatedUser = await User.findById(userId);
@@ -228,6 +260,7 @@ exports.updateProfile = async (req, res) => {
       user: {
         id: updatedUser.id,
         nom: updatedUser.nom,
+        email: updatedUser.email,
         role: updatedUser.role,
         profile_image: updatedUser.profile_image,
       },

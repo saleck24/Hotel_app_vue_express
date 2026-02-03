@@ -8,30 +8,34 @@
 
     <nav class="sidebar-nav">
       <ul v-if="role === 'admin'">
-        <li><RouterLink to="/admin" exact-active-class="active">Dashboard</RouterLink></li>
-        <li><RouterLink to="/admin/rooms" active-class="active">Rooms</RouterLink></li>
-        <li><RouterLink to="/admin/reservations" active-class="active">Reservations</RouterLink></li>
-        <li><RouterLink to="/admin/users" active-class="active">Users</RouterLink></li>
+        <li><RouterLink to="/admin" exact-active-class="active">Tableau de Bord</RouterLink></li>
+        <li><RouterLink to="/admin/rooms" active-class="active">Chambres</RouterLink></li>
+        <li><RouterLink to="/admin/reservations" active-class="active">Réservations</RouterLink></li>
+        <li><RouterLink to="/admin/users" active-class="active">Utilisateurs</RouterLink></li>
+        <li><RouterLink to="/admin/profile" active-class="active">Profil</RouterLink></li>
+        <li><RouterLink to="/admin/reviews" active-class="active">Avis</RouterLink></li>
         <li><RouterLink to="/admin/chat" active-class="active">Messages</RouterLink></li>
       </ul>
       <ul v-else>
-        <li><RouterLink to="/client" exact-active-class="active">Dashboard</RouterLink></li>
-        <li><RouterLink to="/client/reservations" active-class="active">My Reservations</RouterLink></li>
-        <li><RouterLink to="/client/profile" active-class="active">Profile</RouterLink></li>
+        <li><RouterLink to="/client" exact-active-class="active">Tableau de Bord</RouterLink></li>
+        <li><RouterLink to="/client/reservations" active-class="active">Mes Réservations</RouterLink></li>
+        <li><RouterLink to="/client/profile" active-class="active">Profil</RouterLink></li>
         <li><RouterLink to="/client/chat" active-class="active">Chat</RouterLink></li>
       </ul>
     </nav>
 
     <div class="sidebar-footer">
-      <button @click="handleLogout" class="btn-logout">
-        Logout
+      <button @click="handleLogout" class="sidebar-logout-btn">
+        Déconnexion
       </button>
     </div>
   </aside>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { userState, loadUser } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
 defineProps({
@@ -44,83 +48,94 @@ defineProps({
 const authStore = useAuthStore()
 const router = useRouter()
 
+// Load user data if not present (logic from Version A)
+loadUser()
+
+const userName = computed(() => authStore.user?.nom || userState.nom || 'Utilisateur')
+const userProfileImage = computed(() => userState.profile_image || '/default-avatar.jpg')
+
 function handleLogout() {
   authStore.logout()
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
   router.push('/login')
 }
 </script>
 
 <style scoped>
 .sidebar {
-  width: 250px;
-  background-color: var(--color-primary);
+  width: 260px;
+  background-color: #1a2a44;
   color: white;
   display: flex;
   flex-direction: column;
   height: 100vh;
   position: sticky;
   top: 0;
+  z-index: 100;
 }
 
 .sidebar-header {
-  padding: var(--spacing-lg);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2.5rem 1.5rem;
 }
 
 .brand {
   text-decoration: none;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   font-family: var(--font-heading);
   color: white;
+  letter-spacing: -0.02em;
 }
 
 .brand-accent {
-  color: var(--color-secondary);
+  color: #c5a059;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: var(--spacing-lg) 0;
+  padding: 0;
 }
 
 .sidebar-nav ul {
   list-style: none;
+  padding: 0;
 }
 
 .sidebar-nav a {
   display: block;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 1rem 1.5rem;
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  transition: all 0.2s;
-  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 1.0625rem;
 }
 
 .sidebar-nav a:hover,
 .sidebar-nav a.active {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.08);
   color: white;
-  border-left-color: var(--color-secondary);
 }
 
 .sidebar-footer {
-  padding: var(--spacing-lg);
+  padding: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-logout {
+.sidebar-logout-btn {
   width: 100%;
-  background: none;
+  background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  padding: var(--spacing-sm);
+  padding: 0.75rem;
   cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: all 0.2s;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
-.btn-logout:hover {
+.sidebar-logout-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
   border-color: white;
 }

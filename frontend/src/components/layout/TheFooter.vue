@@ -2,26 +2,28 @@
   <footer class="footer">
     <div class="container footer-content">
       <div class="footer-section">
-        <h3 class="footer-title">Hotel App</h3>
-        <p>Your comfort is our priority. Experience the best stay with us.</p>
+        <div class="brand" style="color: white; margin-bottom: 1.5rem; font-size: 1.5rem;">
+          Hotel<span class="brand-accent">App</span>
+        </div>
+        <p>Votre confort est notre priorité. Vivez le meilleur séjour avec nous.</p>
       </div>
       <div class="footer-section">
-        <h4 class="footer-heading">Quick Links</h4>
+        <h4 class="footer-heading">Liens Rapides</h4>
         <ul>
-          <li><RouterLink to="/">Home</RouterLink></li>
-          <li><RouterLink to="/rooms">Rooms</RouterLink></li>
-          <li><RouterLink to="/login">Login</RouterLink></li>
+          <li><RouterLink to="/">Accueil</RouterLink></li>
+          <li><RouterLink to="/rooms">Chambres</RouterLink></li>
+          <li><RouterLink to="/login">Connexion</RouterLink></li>
         </ul>
       </div>
       <div class="footer-section">
         <h4 class="footer-heading">Contact</h4>
         <p>Nouakchott, Mauritanie</p>
         <p>+222 44076356</p>
-        <p>moussamedwedouderebih@gmail.com</p>
+        <p>hotelapp023@gmail.com</p>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; {{ new Date().getFullYear() }} Hotel App. All rights reserved.</p>
+      <p>&copy; {{ new Date().getFullYear() }} Hotel App. Tous droits réservés.</p>
     </div>
   </footer>
 </template>
@@ -35,9 +37,12 @@
 
 .footer-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-xl);
   padding-bottom: var(--spacing-xl);
+  text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .footer-title {
@@ -55,6 +60,7 @@
 
 .footer-section ul {
   list-style: none;
+  padding: 0;
 }
 
 .footer-section ul li {

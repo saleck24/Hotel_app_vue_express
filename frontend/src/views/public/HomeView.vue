@@ -2,35 +2,33 @@
   <div class="home-view">
     <section class="hero">
       <div class="hero-content container">
-        <h1 class="hero-title">Experience Luxury Like Never Before</h1>
-        <p class="hero-subtitle">Discover our premium rooms and suites for your perfect getaway.</p>
-        <RouterLink to="/rooms" class="btn btn-secondary btn-lg">Browse Rooms</RouterLink>
+        <h1 class="hero-title">Vivez le luxe comme jamais auparavant</h1>
+        <p class="hero-subtitle">Découvrez nos chambres et suites premium pour votre escapade parfaite.</p>
+        <RouterLink to="/rooms" class="btn btn-secondary btn-lg">Parcourir les chambres</RouterLink>
       </div>
     </section>
 
-    <section class="featured-rooms container section-padding">
-      <div class="section-header">
-        <h2 class="section-title">Featured Rooms</h2>
-        <p class="section-subtitle">Handpicked for your comfort</p>
-      </div>
+    <section class="featured-rooms section-padding">
+      <div class="container featured-rooms-inner">
+        <div class="section-header">
+          <h2 class="section-title">Chambres Vedettes</h2>
+          <p class="section-subtitle">Sélectionnées pour votre confort</p>
+        </div>
 
-      <div v-if="loading" class="text-center">Loading rooms...</div>
+      <div v-if="loading" class="text-center">Chargement des chambres...</div>
       <div v-else class="rooms-grid">
         <div v-for="room in featuredRooms" :key="room.id" class="room-card">
           <img :src="room.images?.[0] || 'https://placehold.co/600x400?text=Room'" :alt="room.type" class="room-image">
           <div class="room-info">
             <div class="room-header">
               <h3 class="room-type">{{ room.type }}</h3>
-              <span class="room-price">${{ room.prix }} <span class="per-night">/ night</span></span>
+              <span class="room-price">{{ room.prix }} MRU <span class="per-night">/ nuit</span></span>
             </div>
             <p class="room-desc">{{ room.description }}</p>
-            <RouterLink :to="`/rooms/${room.id}`" class="btn btn-outline btn-sm">View Details</RouterLink>
+            <RouterLink :to="`/rooms/${room.id}`" class="btn btn-outline btn-md">Voir Détails</RouterLink>
           </div>
         </div>
       </div>
-      
-      <div class="text-center mt-lg">
-        <RouterLink to="/rooms" class="btn btn-primary">View All Rooms</RouterLink>
       </div>
     </section>
   </div>
@@ -46,7 +44,9 @@ const { rooms, loading } = storeToRefs(roomStore)
 
 // Mock featured rooms if API returns nothing or filter explicit featured flag
 const featuredRooms = computed(() => {
-  return rooms.value.slice(0, 3)
+  return rooms.value
+    .filter(r => r.statut === 'DISPONIBLE')
+    .slice(0, 3)
 })
 
 onMounted(() => {
@@ -71,47 +71,59 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   padding: 0 var(--spacing-md);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.featured-rooms-inner {
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .hero-title {
   font-family: var(--font-heading);
-  font-size: 3.5rem;
+  font-size: 4.5rem;
+  font-weight: 800;
   margin-bottom: var(--spacing-md);
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   margin-bottom: var(--spacing-xl);
-  max-width: 600px;
+  max-width: 800px;
+  opacity: 0.9;
 }
 
 .btn-lg {
-  padding: var(--spacing-md) var(--spacing-2xl);
-  font-size: 1.1rem;
+  padding: 1rem 3rem;
+  font-size: 1.125rem;
 }
 
 .section-padding {
-  padding-top: var(--spacing-2xl);
-  padding-bottom: var(--spacing-2xl);
+  padding: 6rem 0;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 4rem;
 }
 
 .section-title {
   font-family: var(--font-heading);
-  font-size: 2.5rem;
+  font-size: 3.5rem;
+  font-weight: 800;
   color: var(--color-primary);
   margin-bottom: var(--spacing-sm);
+  letter-spacing: -0.01em;
 }
 
 .rooms-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-lg);
+  justify-content: center;
 }
 
 .room-card {
@@ -163,7 +175,7 @@ onMounted(() => {
 .room-desc {
   color: var(--color-text-muted);
   margin-bottom: var(--spacing-md);
-  display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;

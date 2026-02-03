@@ -1,18 +1,4 @@
 <template>
-<<<<<<< Updated upstream
-  <router-view />
-</template>
-
-<script setup>
-</script>
-<style>
-html.dark{
-  color-scheme: dark;
-}
-</style>
-
-
-=======
   <component :is="layout">
     <RouterView />
   </component>
@@ -26,11 +12,13 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 const route = useRoute()
 
 const layout = computed(() => {
+  if (route.meta.layout === false) return 'div'
   return route.meta.layout || DefaultLayout
 })
 </script>
 
 <style>
-/* App specific global styles if needed */
+html.dark {
+  color-scheme: dark;
+}
 </style>
->>>>>>> Stashed changes

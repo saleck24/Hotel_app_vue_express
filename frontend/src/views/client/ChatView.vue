@@ -2,29 +2,32 @@
   <div class="chat-view">
     <div class="chat-wrapper">
       <div class="chat-header">
-        <h3>Contact Support</h3>
+        <h3>Support Client</h3>
       </div>
       <div class="chat-messages" ref="msgContainer">
         <div v-if="messages.length === 0" class="no-messages">
-          <p>No messages yet. Start a conversation!</p>
+          <p>Aucun message pour l'instant. Commencez la conversation !</p>
         </div>
         <div 
           v-for="msg in messages" 
           :key="msg.id" 
-          :class="['message-bubble', msg.sender_id === authStore.user?.id ? 'sent' : 'received']"
+          :class="['message-wrapper', msg.from_user_id === authStore.user?.id ? 'sent' : 'received']"
         >
-          {{ msg.message }}
+          <div class="message-bubble">
+            <div class="message-text">{{ msg.message }}</div>
+            <div class="message-time">{{ formatTime(msg.created_at) }}</div>
+          </div>
         </div>
       </div>
       <div class="chat-input">
         <input 
           v-model="newMessage" 
           @keyup.enter="sendMessage" 
-          placeholder="Type your message..." 
+          placeholder="Écrivez votre message..." 
           :disabled="sending"
         />
         <button @click="sendMessage" :disabled="sending || !newMessage.trim()">
-          Send
+          Envoyer
         </button>
       </div>
     </div>
@@ -32,66 +35,67 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
+import { socket } from '@/services/socket'
 
 const authStore = useAuthStore()
 const messages = ref([])
 const newMessage = ref('')
 const sending = ref(false)
 const msgContainer = ref(null)
+const adminId = ref(null)
 
-// In a real app, this would be the admin user ID or a support channel ID
-const ADMIN_ID = 1 // Placeholder
+async function findAdmin() {
+  try {
+    const res = await api.get('/admins')
+    const admin = res.data[0] // Taking the first available admin
+    if (admin) {
+      adminId.value = admin.id
+      fetchMessages()
+    }
+  } catch (err) {
+    console.error('Error finding admin', err)
+  }
+}
 
 async function fetchMessages() {
+  if (!adminId.value) return
   try {
-    // Current user ID is used to fetch chat history with self? 
-    // API: GET /api/messages/{userId}
-    // If I am client, {userId} should probably be the OTHER person? 
-    // Or if checking MY history, usually it's implied 'me' or I pass my ID.
-    // The prompt says "GET /api/messages/{userId} ... Historique messages avec user".
-    // If I am client, I want to see messages with Admin. Admin ID is unknown usually, but let's assume system chat.
-    // Let's assume we pass 'admin' or something if the backend handles it, or just our own ID to see all?
-    // Let's assume the endpoint returns messages associated with the user passed in path.
-    if (authStore.user) {
-        const res = await api.get(`/messages/${authStore.user.id}`) // Or admin ID?
-        // Wait, if I am client, I want messages between ME and Admin.
-        // If the endpoint gets history with {userId}, maybe as a client I query messages with 'admin'?
-        // Let's assume the backend knows who 'admin' is, or we send '1'.
-        // Actually, usually users just GET /messages and backend returns their messages.
-        // But the API spec says GET /api/messages/{userId}.
-        // Maybe it's "Get messages with userId". So if I am client, I call GET /messages/1 (admin).
-        const res2 = await api.get(`/messages/${ADMIN_ID}`)
-        messages.value = res2.data
-    }
+    const res = await api.get(`/messages/${adminId.value}`)
+    messages.value = res.data
+    scrollToBottom()
   } catch (err) {
     console.error('Chat fetch error', err)
   }
 }
 
-async function sendMessage() {
-  if (!newMessage.value.trim()) return
-  sending.value = true
-  try {
-    await api.post('/messages', {
-      to_user_id: ADMIN_ID,
-      message: newMessage.value
-    })
-    // Add locally or re-fetch
-    messages.value.push({
-      id: Date.now(),
-      sender_id: authStore.user.id,
-      message: newMessage.value
-    })
-    newMessage.value = ''
-    scrollToBottom()
-  } catch (err) {
-    alert('Failed to send message')
-  } finally {
-    sending.value = false
+function formatTime(dateStr) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+function sendMessage() {
+  if (!newMessage.value.trim() || !adminId.value) return
+  
+  const msgData = {
+    toUserId: adminId.value,
+    message: newMessage.value
   }
+
+  socket.emit('send_message', msgData)
+
+  messages.value.push({
+    id: Date.now(),
+    from_user_id: authStore.user.id,
+    message: newMessage.value,
+    created_at: new Date().toISOString()
+  })
+
+  newMessage.value = ''
+  scrollToBottom()
 }
 
 function scrollToBottom() {
@@ -103,15 +107,33 @@ function scrollToBottom() {
 }
 
 onMounted(() => {
-  fetchMessages()
-  // Poll for new messages every 5s since no WebSocket
-  setInterval(fetchMessages, 5000)
+  findAdmin()
+  
+  socket.connect()
+  
+  socket.on('receive_message', (data) => {
+    // Check if message is from the admin we are talking to
+    if (data.fromUserId == adminId.value) {
+      messages.value.push({
+        id: Date.now(),
+        from_user_id: data.fromUserId,
+        message: data.message,
+        created_at: data.timestamp
+      })
+      scrollToBottom()
+    }
+  })
+})
+
+onUnmounted(() => {
+  socket.off('receive_message')
+  socket.disconnect()
 })
 </script>
 
 <style scoped>
 .chat-view {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 180px);
   display: flex;
   flex-direction: column;
 }
@@ -121,76 +143,181 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background: white;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   overflow: hidden;
+  border: 1px solid #edf2f7;
+}
+
+:global(.dark) .chat-wrapper {
+  background: var(--color-surface);
+  border-color: rgba(255,255,255,0.1);
 }
 
 .chat-header {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid #eee;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #edf2f7;
   background-color: var(--color-primary);
   color: white;
 }
 
+:global(.dark) .chat-header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
 .chat-messages {
   flex: 1;
-  padding: var(--spacing-md);
+  padding: 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  background-color: #f9f9f9;
+  gap: 1rem;
+  background-color: #f8fafc;
 }
 
-.message-bubble {
-  max-width: 70%;
-  padding: 10px 15px;
-  border-radius: 18px;
-  font-size: 0.95rem;
-  line-height: 1.4;
+:global(.dark) .chat-messages {
+  background-color: var(--color-background);
+}
+
+.message-wrapper {
+  display: flex;
+  width: 100%;
 }
 
 .sent {
-  align-self: flex-end;
+  justify-content: flex-end;
+}
+
+.received {
+  justify-content: flex-start;
+}
+
+.message-bubble {
+  max-width: 75%;
+  padding: 0.8rem 1.2rem;
+  border-radius: 18px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.message-text {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  margin-top: 4px;
+  opacity: 0.8;
+  text-align: right;
+}
+
+.sent .message-bubble {
   background-color: var(--color-primary);
   color: white;
   border-bottom-right-radius: 4px;
 }
 
-.received {
-  align-self: flex-start;
-  background-color: #e0e0e0;
-  color: var(--color-text);
+:global(.dark) .sent .message-bubble {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.sent .message-time {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.received .message-bubble {
+  background-color: white;
+  color: var(--color-primary);
   border-bottom-left-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+:global(.dark) .received .message-bubble {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.received .message-time {
+  color: #718096;
+}
+
+:global(.dark) .received .message-time {
+  color: var(--color-text-muted);
 }
 
 .chat-input {
-  padding: var(--spacing-md);
-  border-top: 1px solid #eee;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #edf2f7;
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 12px;
+  background: white;
+}
+
+:global(.dark) .chat-input {
+  background: var(--color-surface);
+  border-color: rgba(255,255,255,0.1);
 }
 
 .chat-input input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 25px;
   outline: none;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  background: white;
+  color: var(--color-primary);
+}
+
+:global(.dark) .chat-input input {
+  background: var(--color-background);
+  border-color: rgba(255,255,255,0.1);
+  color: var(--color-text);
+}
+
+.chat-input input:focus {
+  border-color: var(--color-secondary);
 }
 
 .chat-input button {
-  padding: 0 20px;
+  padding: 0 1.5rem;
   background-color: var(--color-secondary);
   color: white;
   border: none;
-  border-radius: 20px;
-  font-weight: 600;
+  border-radius: 25px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-input button:hover:not(:disabled) {
+  background-color: #b38f4d;
 }
 
 .chat-input button:disabled {
   opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.no-messages {
+  text-align: center;
+  color: #94a3b8;
+  margin-top: 2rem;
 }
 </style>

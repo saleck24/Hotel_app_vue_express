@@ -99,7 +99,7 @@ router.post(
       .isInt({ min: 1 }).withMessage("Capacité invalide"),
     body("statut")
       .notEmpty().withMessage("Le statut est requis")
-      .isIn(["DISPONIBLE", "INDISPONIBLE"])
+      .isIn(["DISPONIBLE", "EN_ATTENTE", "RESERVEE", "OCCUPEE", "MAINTENANCE", "NETTOYAGE"])
       .withMessage("Statut invalide")
   ],
   (req, res, next) => {
@@ -165,8 +165,16 @@ router.post(
  *       500:
  *         description: Erreur serveur
  */
-// ADMIN uniquement
-router.put("/:id", verifyToken, checkRole("ADMIN"), uploadRooms.array("images", 3), updateRoom);
+// ADMIN uniquement - middleware d'upload optionnel
+router.put("/:id", verifyToken, checkRole("ADMIN"), (req, res, next) => {
+  // Si c'est multipart/form-data, utiliser le middleware d'upload
+  if (req.is('multipart/form-data')) {
+    uploadRooms.array("images", 3)(req, res, next);
+  } else {
+    // Sinon, passer directement au contrôleur
+    next();
+  }
+}, updateRoom);
 
 /**
  * @swagger
@@ -201,8 +209,8 @@ router.delete("/:id", verifyToken, checkRole("ADMIN"), deleteRoom);
  *       200:
  *         description: Liste des chambres
  */
-// CLIENT + ADMIN
-router.get("/", verifyToken, checkRole("ADMIN", "CLIENT"), getRooms);
+// PUBLIC: CLIENT + ADMIN + GUESTS
+router.get("/", getRooms);
 
 /**
  * @swagger
@@ -222,7 +230,7 @@ router.get("/", verifyToken, checkRole("ADMIN", "CLIENT"), getRooms);
  *       200:
  *         description: Détails de la chambre
  */
-// CLIENT + ADMIN
-router.get("/:id", verifyToken, checkRole("ADMIN", "CLIENT"), getRoomById);
+// PUBLIC: Accessible à tous (guests, clients, admin)
+router.get("/:id", getRoomById);
 
 module.exports = router;

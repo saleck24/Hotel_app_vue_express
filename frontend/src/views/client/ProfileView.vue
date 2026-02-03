@@ -1,13 +1,12 @@
 <template>
   <div class="profile-view">
     <div class="profile-card">
-      <h3>Edit Profile</h3>
+      <h3>Modifier le profil</h3>
       <form @submit.prevent="updateProfile">
-        <BaseInput label="Name" id="name" v-model="form.nom" required />
+        <BaseInput label="Nom" id="name" v-model="form.nom" required />
         <BaseInput label="Email" id="email" v-model="form.email" type="email" required />
-        <!-- Password update could be added here -->
-        
-        <BaseButton type="submit" :loading="loading">Update Profile</BaseButton>
+        <BaseInput label="Password" id="password" v-model="form.password" type="password" required />
+        <BaseButton type="submit" :loading="loading">Mettre à jour le profil</BaseButton>
       </form>
     </div>
   </div>
@@ -23,7 +22,8 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 const authStore = useAuthStore()
 const form = ref({
   nom: '',
-  email: ''
+  email: '',
+  password: ''
 })
 const loading = ref(false)
 
@@ -38,11 +38,14 @@ async function updateProfile() {
   loading.value = true
   try {
     const res = await api.put('/users/profile', form.value)
-    // Update store
-    // authStore.user = res.data // assuming API returns updated user
-    alert('Profile updated successfully')
+    // Mettre à jour le store
+    if (res.data.user) {
+      authStore.updateUser(res.data.user)
+    }
+    alert('Profil mis à jour avec succès')
+    form.value.password = '' // Vider le champ mot de passe après succès
   } catch (err) {
-    alert('Failed to update profile')
+    alert('Échec de la mise à jour du profil')
   } finally {
     loading.value = false
   }
@@ -51,10 +54,24 @@ async function updateProfile() {
 
 <style scoped>
 .profile-card {
-  background: white;
+  background: var(--color-surface);
   padding: var(--spacing-xl);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   max-width: 600px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+:global(.dark) .profile-card {
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+h3 {
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+:global(.dark) h3 {
+  color: var(--color-text);
 }
 </style>

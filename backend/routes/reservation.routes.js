@@ -88,7 +88,7 @@ router.post(
  *       200:
  *         description: Liste des réservations de l'utilisateur
  */
-router.get("/mes-reservations",verifyToken,checkRole("CLIENT"),getMyReservations);
+router.get("/mes-reservations", verifyToken, checkRole("CLIENT"), getMyReservations);
 
 
 /**
@@ -104,7 +104,21 @@ router.get("/mes-reservations",verifyToken,checkRole("CLIENT"),getMyReservations
  *         description: Liste des réservations en attente
  */
 // ADMIN
-router.get("/en-attente",verifyToken,checkRole("ADMIN"),getPendingReservations);
+router.get("/en-attente", verifyToken, checkRole("ADMIN"), getPendingReservations);
+
+// Récupérer toutes les réservations (ADMIN)
+router.get("/", verifyToken, checkRole("ADMIN"), (req, res, next) => {
+  // Distinguer du POST / basé sur la méthode et le rôle
+  // C'est assez générique car le POST est géré au-dessus
+  const { getAllReservations } = require("../controllers/reservations.controller");
+  return getAllReservations(req, res);
+});
+
+// Annuler réservation (ADMIN)
+router.put("/:id/annuler-admin", verifyToken, checkRole("ADMIN"), (req, res, next) => {
+  const { annulerReservationAdmin } = require("../controllers/reservations.controller");
+  return annulerReservationAdmin(req, res);
+});
 
 
 /**
@@ -126,7 +140,7 @@ router.get("/en-attente",verifyToken,checkRole("ADMIN"),getPendingReservations);
  *         description: Réservation validée
  */
 // ADMIN
-router.put("/:id/valider",verifyToken,checkRole("ADMIN"),validerReservation);
+router.put("/:id/valider", verifyToken, checkRole("ADMIN"), validerReservation);
 
 
 /**

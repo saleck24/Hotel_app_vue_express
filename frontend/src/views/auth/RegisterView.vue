@@ -2,45 +2,45 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       <div class="auth-header">
-        <h1 class="text-heading">Create Account</h1>
-        <p>Join us to book your perfect stay</p>
+        <h1 class="text-heading">Créer un compte</h1>
+        <p>Rejoignez-nous pour réserver votre séjour idéal</p>
       </div>
 
       <form @submit.prevent="handleRegister">
         <BaseInput
           id="name"
-          label="Full Name"
+          label="Nom complet"
           type="text"
           v-model="form.nom"
           required
-          placeholder="John Doe"
+          placeholder="Jean Dupont"
         />
 
         <BaseInput
           id="email"
-          label="Email Address"
+          label="Adresse e-mail"
           type="email"
           v-model="form.email"
           required
-          placeholder="you@example.com"
+          placeholder="votre@exemple.com"
         />
         
         <BaseInput
           id="password"
-          label="Password"
+          label="Mot de passe"
           type="password"
           v-model="form.password"
           required
-          placeholder="Min. 8 characters"
+          placeholder="Min. 8 caractères"
         />
 
         <BaseButton type="submit" class="w-full" :loading="loading">
-          Sign Up
+          S'inscrire
         </BaseButton>
       </form>
 
       <div class="auth-footer">
-        <p>Already have an account? <RouterLink to="/login">Sign In</RouterLink></p>
+        <p>Déjà un compte ? <RouterLink to="/login">Se connecter</RouterLink></p>
       </div>
 
       <p v-if="error" class="error-message">{{ error }}</p>
@@ -77,7 +77,7 @@ async function handleRegister() {
     // Assuming API requires login after register
     router.push('/login')
   } catch (err) {
-    error.value = err.response?.data?.message || 'Registration failed. Try again.'
+    error.value = err.response?.data?.message || "Échec de l'inscription. Réessayez."
   } finally {
     loading.value = false
   }

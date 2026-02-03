@@ -2,37 +2,37 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       <div class="auth-header">
-        <h1 class="text-heading">Reset Password</h1>
-        <p>Create a new strong password</p>
+        <h1 class="text-heading">Réinitialiser</h1>
+        <p>Créez un nouveau mot de passe fort</p>
       </div>
 
       <form @submit.prevent="handleSubmit" v-if="!success">
         <BaseInput
           id="token"
-          label="Reset Token"
+          label="Jeton de réinitialisation"
           type="text"
           v-model="token"
           required
-          placeholder="Enter the code from your email"
+          placeholder="Entrez le code reçu par e-mail"
         />
 
         <BaseInput
           id="password"
-          label="New Password"
+          label="Nouveau mot de passe"
           type="password"
           v-model="newPassword"
           required
-          placeholder="Min. 8 characters"
+          placeholder="Min. 8 caractères"
         />
 
         <BaseButton type="submit" class="w-full" :loading="loading">
-          Reset Password
+          Réinitialiser le mot de passe
         </BaseButton>
       </form>
 
       <div v-else class="success-message">
-        <p>Your password has been reset successfully.</p>
-        <RouterLink to="/login" class="btn btn-primary w-full mt-4">Login Now</RouterLink>
+        <p>Votre mot de passe a été réinitialisé avec succès.</p>
+        <RouterLink to="/login" class="btn btn-primary w-full mt-4">Se connecter maintenant</RouterLink>
       </div>
 
       <p v-if="error" class="error-message">{{ error }}</p>
@@ -73,7 +73,7 @@ async function handleSubmit() {
     })
     success.value = true
   } catch (err) {
-    error.value = err.response?.data?.message || 'Failed to reset password.'
+    error.value = err.response?.data?.message || 'Échec de la réinitialisation.'
   } finally {
     loading.value = false
   }

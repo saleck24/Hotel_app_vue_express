@@ -20,6 +20,20 @@ const Message = {
       ORDER BY created_at ASC
     `;
     return bd.query(sql, [user1, user2, user2, user1]);
+  },
+
+  // Récupérer la liste des IDs des utilisateurs avec qui l'utilisateur a conversé
+  getConversations: async (userId) => {
+    const sql = `
+      SELECT DISTINCT 
+        u.id, u.nom, u.role
+      FROM users u
+      JOIN messages m ON (u.id = m.from_user_id OR u.id = m.to_user_id)
+      WHERE (m.from_user_id = ? OR m.to_user_id = ?)
+        AND u.id != ?
+    `;
+    const [rows] = await bd.query(sql, [userId, userId, userId]);
+    return rows;
   }
 };
 

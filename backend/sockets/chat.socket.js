@@ -17,12 +17,12 @@ module.exports = (io, usersOnline) => {
         });
 
         // Envoyer en temps réel au destinataire s'il est connecté
-        const toSocketId = usersOnline.get(toUserId);
+        const toSocketId = usersOnline.get(Number(toUserId));
         if (toSocketId) {
           io.to(toSocketId).emit("receive_message", {
             fromUserId: socket.user.id,
             message,
-            timestamp: newMessage.createdAt
+            timestamp: new Date().toISOString()
           });
         }
       } catch (err) {
@@ -32,7 +32,7 @@ module.exports = (io, usersOnline) => {
 
     // Déconnexion
     socket.on("disconnect", () => {
-      usersOnline.delete(socket.user.id);
+      usersOnline.delete(Number(socket.user.id));
       console.log(`Utilisateur déconnecté: ${socket.user.id}`);
     });
   });

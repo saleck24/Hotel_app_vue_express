@@ -2,23 +2,23 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       <div class="auth-header">
-        <h1 class="text-heading">Welcome Back</h1>
-        <p>Sign in to your account related to Hotel App</p>
+        <h1 class="text-heading">Bon retour</h1>
+        <p>Connectez-vous à votre compte Hotel App</p>
       </div>
 
       <form @submit.prevent="handleLogin">
         <BaseInput
           id="email"
-          label="Email Address"
+          label="Adresse e-mail"
           type="email"
           v-model="form.email"
           required
-          placeholder="you@example.com"
+          placeholder="votre@exemple.com"
         />
         
         <BaseInput
           id="password"
-          label="Password"
+          label="Mot de passe"
           type="password"
           v-model="form.password"
           required
@@ -26,16 +26,16 @@
         />
 
         <div class="form-actions">
-          <RouterLink to="/forgot-password" class="forgot-link">Forgot password?</RouterLink>
+          <RouterLink to="/forgot-password" class="forgot-link">Mot de passe oublié ?</RouterLink>
         </div>
 
         <BaseButton type="submit" class="w-full" :loading="loading">
-          Sign In
+          Se connecter
         </BaseButton>
       </form>
 
       <div class="auth-footer">
-        <p>Don't have an account? <RouterLink to="/register">Create one</RouterLink></p>
+        <p>Pas de compte ? <RouterLink to="/register">En créer un</RouterLink></p>
       </div>
       
       <p v-if="error" class="error-message">{{ error }}</p>
@@ -45,12 +45,13 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const form = reactive({
@@ -67,14 +68,21 @@ async function handleLogin() {
   
   try {
     await authStore.login(form)
-    // Redirect based on role? For now home or dashboard
+    
+    // Check for redirect query param
+    if (route.query.redirect) {
+      router.push(route.query.redirect)
+      return
+    }
+
+    // Default redirects
     if (authStore.isAdmin) {
       router.push('/admin')
     } else {
-      router.push('/client') // or home
+      router.push('/client')
     }
   } catch (err) {
-    error.value = err.response?.data?.message || 'Login failed. Please check your credentials.'
+    error.value = err.response?.data?.message || 'Échec de connexion. Veuillez vérifier vos identifiants.'
   } finally {
     loading.value = false
   }

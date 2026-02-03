@@ -1,12 +1,12 @@
 <template>
   <div class="rooms-view container section-padding">
     <div class="rooms-header center-text">
-       <h1 class="text-heading page-title">Our Rooms & Suites</h1>
-       <p class="subtitle">Find your perfect accommodation</p>
+       <h1 class="text-heading page-title">Nos Chambres & Suites</h1>
+       <p class="subtitle">Trouvez votre hébergement idéal</p>
     </div>
 
     <div v-if="loading" class="loading-state">
-      <div class="spinner"></div> Loading rooms...
+      <div class="spinner"></div> Chargement des chambres...
     </div>
 
     <div v-else-if="error" class="error-state">
@@ -14,7 +14,7 @@
     </div>
 
     <div v-else class="rooms-grid">
-      <div v-for="room in rooms" :key="room.id" class="room-card">
+      <div v-for="room in availableRooms" :key="room.id" class="room-card">
         <div class="card-image-wrapper">
           <img :src="room.images?.[0] || 'https://placehold.co/600x400?text=Room'" :alt="room.type" class="room-image">
           <div class="room-status" v-if="room.statut !== 'DISPONIBLE'">{{ room.statut }}</div>
@@ -22,15 +22,15 @@
         <div class="room-info">
           <div class="room-header">
             <h3 class="room-type">{{ room.type }}</h3>
-            <span class="room-price">${{ room.prix }} <span class="per-night">/ night</span></span>
+            <span class="room-price">{{ room.prix }} MRU <span class="per-night">/ nuit</span></span>
           </div>
           <div class="room-meta">
-             <span><i class="icon-user"></i> {{ room.capacite }} Guests</span>
+             <span><i class="icon-user"></i> {{ room.capacite }} Personnes</span>
              <span>Ref: {{ room.numero }}</span>
           </div>
           <p class="room-desc">{{ room.description }}</p>
           <div class="card-actions">
-            <RouterLink :to="`/rooms/${room.id}`" class="btn btn-outline w-full">View Details</RouterLink>
+            <button @click="goToDetails(room.id)" class="btn btn-outline w-full">Voir Détails</button>
           </div>
         </div>
       </div>
@@ -39,12 +39,31 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useRoomStore } from '@/stores/rooms'
+import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 
+const router = useRouter()
 const roomStore = useRoomStore()
+const authStore = useAuthStore()
 const { rooms, loading, error } = storeToRefs(roomStore)
+
+const availableRooms = computed(() => {
+  return rooms.value.filter(r => r.statut === 'DISPONIBLE')
+})
+
+function goToDetails(roomId) {
+  if (authStore.isAuthenticated) {
+    router.push(`/rooms/${roomId}`)
+  } else {
+    router.push({ 
+      path: '/login', 
+      query: { redirect: `/rooms/${roomId}` } 
+    })
+  }
+}
 
 onMounted(() => {
   roomStore.fetchRooms()
@@ -52,6 +71,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.rooms-view {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 .section-padding {
   padding-top: var(--spacing-2xl);
   padding-bottom: var(--spacing-2xl);
@@ -158,7 +182,7 @@ onMounted(() => {
 .room-desc {
   color: var(--color-text-muted);
   margin-bottom: var(--spacing-lg);
-  display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;

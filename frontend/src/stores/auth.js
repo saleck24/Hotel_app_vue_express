@@ -9,32 +9,23 @@ export const useAuthStore = defineStore('auth', () => {
     const router = useRouter()
 
     const isAuthenticated = computed(() => !!token.value)
-    const isAdmin = computed(() => user.value?.role === 'admin' || user.value?.isAdmin) // Adjust based on API response
+    const isAdmin = computed(() => user.value?.role?.toUpperCase() === 'ADMIN')
 
     async function login(credentials) {
         try {
             const response = await api.post('/auth/login', credentials)
-            // Assuming response.data contains { token, user } or similar
-            // The prompt example just says "Example Value Schema { email, password }" for input
-            // I'll assume standard JWT response: { token: '...', user: { ... } }
-            // I will need to verify the actual response structure if it fails.
-
-            // For now, let's assume the token is directly in response.data.token or similar
-            // Code below tries to handle common patterns
             const data = response.data
+            const receivedUser = data.user
 
-            const receivedToken = data.token || data.accessToken
-            const receivedUser = data.user || data.formattedUser // Make sure to adapt this
+            user.value = receivedUser
+            // Since token is now in an HttpOnly cookie, we don't handle it here manually.
+            // But we set a placeholder to keep logic and router guards working.
+            token.value = 'SET_BY_COOKIE'
 
-            if (receivedToken) {
-                token.value = receivedToken
-                user.value = receivedUser
+            localStorage.setItem('user', JSON.stringify(receivedUser))
+            localStorage.setItem('token', 'SET_BY_COOKIE')
 
-                localStorage.setItem('token', receivedToken)
-                localStorage.setItem('user', JSON.stringify(receivedUser))
-
-                return true
-            }
+            return true
         } catch (error) {
             throw error
         }
@@ -43,22 +34,29 @@ export const useAuthStore = defineStore('auth', () => {
     async function register(userData) {
         try {
             await api.post('/auth/register', userData)
-            // Usually register allows immediate login or requires email verification
-            // For now just return true
             return true
         } catch (error) {
             throw error
         }
     }
 
-    function logout() {
-        user.value = null
-        token.value = null
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        // We can't access router directly here easily if not inside setup, 
-        // but we can let the component handle redirection or use window.location
-        window.location.href = '/login'
+    async function logout() {
+        try {
+            await api.post('/auth/logout')
+        } catch (error) {
+            console.error('Logout error', error)
+        } finally {
+            user.value = null
+            token.value = null
+            localStorage.removeItem('user')
+            localStorage.removeItem('token')
+            window.location.href = '/login'
+        }
+    }
+
+    async function updateUser(userData) {
+        user.value = userData
+        localStorage.setItem('user', JSON.stringify(userData))
     }
 
     return {
@@ -68,6 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAdmin,
         login,
         register,
-        logout
+        logout,
+        updateUser
     }
 })
