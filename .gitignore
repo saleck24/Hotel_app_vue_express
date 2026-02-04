@@ -3,6 +3,7 @@ backend/.env
 frontend/.env
 backend/node_modules/
 frontend/node_modules/
+frontend/.vscode
 dist/
 .DS_Store
 .vscode/
