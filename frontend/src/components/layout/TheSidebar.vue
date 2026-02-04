@@ -14,7 +14,7 @@
         <li><RouterLink to="/admin/users" active-class="active">Utilisateurs</RouterLink></li>
         <li><RouterLink to="/admin/profile" active-class="active">Profil</RouterLink></li>
         <li><RouterLink to="/admin/reviews" active-class="active">Avis</RouterLink></li>
-        <li><RouterLink to="/admin/chat" active-class="active">Messages</RouterLink></li>
+        <li><RouterLink to="/admin/chat" active-class="active">Chat</RouterLink></li>
       </ul>
       <ul v-else>
         <li><RouterLink to="/client" exact-active-class="active">Tableau de Bord</RouterLink></li>
@@ -48,7 +48,7 @@ defineProps({
 const authStore = useAuthStore()
 const router = useRouter()
 
-// Load user data if not present (logic from Version A)
+
 loadUser()
 
 const userName = computed(() => authStore.user?.nom || userState.nom || 'Utilisateur')

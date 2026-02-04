@@ -72,7 +72,7 @@
               </BaseButton>
 
               <p v-if="bookingError" class="error-msg">{{ bookingError }}</p>
-              <p v-if="bookingSuccess" class="success-msg">Demande de réservation envoyée ! Voir le tableau de bord.</p>
+              <p v-if="bookingSuccess" class="success-msg">Demande de réservation envoyée à l'admin !</p>
               <a v-if="bookingSuccess"
                 :href="whatsappLink"
                 target="_blank"
