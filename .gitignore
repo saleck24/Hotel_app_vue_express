@@ -8,3 +8,6 @@ dist/
 .DS_Store
 .vscode/
 npm-debug.log
+
+# Documentation locale - ne jamais pousser sur GitHub
+DOCUMENTATION_PROJET.md

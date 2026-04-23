@@ -1,20 +1,20 @@
 <template>
   <div class="my-reservations">
-    <div v-if="loading">Chargement des réservations...</div>
+    <div v-if="loading">{{ $t('rooms.loading') }}</div>
     <div v-else-if="reservations.length === 0">
-      <p>Vous n'avez pas encore de réservations.</p>
-      <RouterLink to="/rooms" class="btn btn-primary mt-4">Trouver une chambre</RouterLink>
+      <p>{{ $t('client.no_reservations') }}</p>
+      <RouterLink to="/rooms" class="btn btn-primary mt-4">{{ $t('client.find_room') }}</RouterLink>
     </div>
     <div v-else class="reservations-list">
       <div v-for="res in reservations" :key="res.id" class="reservation-card">
         <div class="res-info">
           <div class="res-header">
-             <h4>Réservation #{{ res.id }}</h4>
-             <span :class="['status-badge', res.statut?.toLowerCase()]">{{ res.statut }}</span>
+             <h4>{{ $t('client.reservation_id', { id: res.id }) }}</h4>
+             <span :class="['status-badge', res.statut?.toLowerCase()]">{{ labelStatut(res.statut) }}</span>
           </div>
           <div class="res-details">
-            <p><strong>Chambre:</strong> {{ res.type }} (N° {{ res.numero }})</p>
-            <p><strong>Dates:</strong> {{ formatDate(res.date_debut) }} - {{ formatDate(res.date_fin) }}</p>
+            <p><strong>{{ $t('client.room') }}:</strong> {{ res.type }} ({{ $t('rooms.ref') }} {{ res.numero }})</p>
+            <p><strong>{{ $t('client.dates') }}:</strong> {{ formatDate(res.date_debut) }} - {{ formatDate(res.date_fin) }}</p>
           </div>
         </div>
         <div class="res-actions">
@@ -23,19 +23,19 @@
             @click="cancelReservation(res.id)" 
             class="btn btn-danger btn-sm"
           >
-            Annuler
+            {{ $t('client.cancel') }}
           </button>
           <button
             v-if="res.statut === 'CONFIRMEE' && !hasReview(res.id)"
             @click="toggleReview(res.id)"
             class="btn btn-primary btn-sm"
           >
-            Donner une note
+            {{ $t('client.rate_stay') }}
           </button>
         </div>
         <div v-if="openReviewId === res.id && !hasReview(res.id)" class="review-form">
           <div class="review-row">
-            <label for="note">Note (1-5)</label>
+            <label for="note">{{ $t('client.note_label') }} (1-5)</label>
             <input
               id="note"
               type="number"
@@ -45,7 +45,7 @@
             />
           </div>
           <div class="review-row">
-            <label for="commentaire">Commentaire (optionnel)</label>
+            <label for="commentaire">{{ $t('client.comment_label') }} ({{ $t('client.optional') }})</label>
             <textarea
               id="commentaire"
               rows="3"
@@ -58,14 +58,14 @@
               :disabled="reviewLoading"
               @click="submitReview(res.id)"
             >
-              Envoyer
+              {{ $t('client.send') }}
             </button>
             <button class="btn btn-secondary btn-sm" @click="toggleReview(null)">
-              Fermer
+              {{ $t('client.close') }}
             </button>
           </div>
           <p v-if="reviewError" class="error-text">{{ reviewError }}</p>
-          <p v-if="reviewSuccessId === res.id" class="success-text">Merci pour votre avis.</p>
+          <p v-if="reviewSuccessId === res.id" class="success-text">{{ $t('client.review_thanks') }}</p>
         </div>
       </div>
     </div>
@@ -74,7 +74,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '@/services/api'
+
+const { t } = useI18n()
 
 const reservations = ref([])
 const loading = ref(true)
@@ -104,6 +107,18 @@ async function fetchReservations() {
   }
 }
 
+function labelStatut(statut) {
+  const labels = {
+    EN_ATTENTE: t('status.pending'),
+    CONFIRMEE:  t('status.confirmed'),
+    ANNULEE:    t('status.cancelled'),
+    MAINTENANCE: t('status.maintenance'),
+    NETTOYAGE:   t('status.cleaning'),
+    DISPONIBLE:  t('status.available')
+  }
+  return labels[statut] || statut
+}
+
 async function fetchMyReviews() {
   try {
     const res = await api.get('/reviews/me')
@@ -114,7 +129,7 @@ async function fetchMyReviews() {
 }
 
 async function cancelReservation(id) {
-  if(!confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) return
+  if(!confirm(t('client.confirm_cancel'))) return
   try {
     await api.put(`/reservations/${id}/annuler`)
     fetchReservations()

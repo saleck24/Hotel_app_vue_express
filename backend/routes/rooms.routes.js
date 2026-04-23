@@ -8,7 +8,8 @@ const {
   getRooms,
   getRoomById,
   updateRoom,
-  deleteRoom
+  deleteRoom,
+  getRoomsAvailability
 } = require("../controllers/rooms.controller");
 
 const { verifyToken } = require("../middleware/auth.middleware");
@@ -211,6 +212,34 @@ router.delete("/:id", verifyToken, checkRole("ADMIN"), deleteRoom);
  */
 // PUBLIC: CLIENT + ADMIN + GUESTS
 router.get("/", getRooms);
+
+/**
+ * @swagger
+ * /api/rooms/availability:
+ *   get:
+ *     summary: Vérifier la disponibilité des chambres sur une période
+ *     tags: [Rooms]
+ *     parameters:
+ *       - in: query
+ *         name: date_debut
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Date de début (YYYY-MM-DD)
+ *       - in: query
+ *         name: date_fin
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Date de fin (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Liste des chambres avec le champ estOccupee
+ */
+// PUBLIC: accessible à tous
+router.get("/availability", getRoomsAvailability);
 
 /**
  * @swagger

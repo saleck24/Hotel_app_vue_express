@@ -16,6 +16,9 @@ const io = new Server(server, {
   }
 });
 
+app.set('socketio', io);
+
+
 // Map des utilisateurs connectés
 const usersOnline = new Map();
 

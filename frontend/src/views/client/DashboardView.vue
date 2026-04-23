@@ -2,30 +2,30 @@
   <div class="dashboard-home">
     <div class="stats-grid">
       <div class="stat-card">
-        <h3>Total des Réservations</h3>
+        <h3>{{ $t('client.total_reservations') }}</h3>
         <p class="stat-value">{{ stats.total }}</p>
       </div>
        <div class="stat-card">
-        <h3>Réservations EN_ATTENTE</h3>
+        <h3>{{ $t('client.pending_reservations') }}</h3>
         <p class="stat-value">{{ stats.pending }}</p>
       </div>
     </div>
 
     <div class="dashboard-content">
       <div class="recent-section">
-        <h3>Activité Récente</h3>
-        <div v-if="loading">Chargement...</div>
+        <h3>{{ $t('client.recent_activity') }}</h3>
+        <div v-if="loading">{{ $t('client.loading') }}</div>
         <div v-else-if="recentReservations.length === 0">
-          <p>Aucune activité récente.</p>
+          <p>{{ $t('client.no_activity') }}</p>
         </div>
         <div v-else class="recent-list">
           <div v-for="res in recentReservations" :key="res.id" class="recent-item">
-            <span class="recent-type">{{ res.type }} (N° {{ res.numero }})</span>
-            <span :class="['status-badge', res.statut?.toLowerCase()]">{{ res.statut }}</span>
+            <span class="recent-type">{{ res.type }} ({{ $t('rooms.ref') }} {{ res.numero }})</span>
+            <span :class="['status-badge', res.statut?.toLowerCase()]">{{ labelStatut(res.statut) }}</span>
             <span class="recent-date">{{ formatDate(res.date_debut) }}</span>
           </div>
         </div>
-        <RouterLink to="/rooms" class="btn btn-primary btn-lg mt-6">Réserver une chambre</RouterLink>
+        <RouterLink to="/rooms" class="btn btn-primary btn-lg mt-6">{{ $t('client.book_room') }}</RouterLink>
       </div>
     </div>
   </div>
@@ -33,7 +33,10 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '@/services/api'
+
+const { t } = useI18n()
 
 const reservations = ref([])
 const loading = ref(true)
@@ -48,6 +51,18 @@ const stats = computed(() => {
 const recentReservations = computed(() => {
   return reservations.value.slice(0, 5)
 })
+
+function labelStatut(statut) {
+  const labels = {
+    EN_ATTENTE: t('status.pending'),
+    CONFIRMEE:  t('status.confirmed'),
+    ANNULEE:    t('status.cancelled'),
+    MAINTENANCE: t('status.maintenance'),
+    NETTOYAGE:   t('status.cleaning'),
+    DISPONIBLE:  t('status.available')
+  }
+  return labels[statut] || statut
+}
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString()

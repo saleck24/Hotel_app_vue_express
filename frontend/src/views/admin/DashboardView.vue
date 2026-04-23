@@ -2,13 +2,13 @@
   <div class="admin-dashboard">
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>Chargement des statistiques...</p>
+      <p>{{ $t('admin.loading') }}</p>
     </div>
     
     <div v-else class="dashboard-content">
       <header class="dashboard-header">
-        <h1>Tableau de Bord</h1>
-        <p>Résumé de l'activité de votre hôtel</p>
+        <h1>{{ $t('admin.title') }}</h1>
+        <p>{{ $t('admin.subtitle') }}</p>
       </header>
 
       <div class="stats-grid">
@@ -18,9 +18,9 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
           </div>
           <div class="stat-info">
-            <h3>Revenu total</h3>
+            <h3>{{ $t('admin.total_revenue') }}</h3>
             <p class="stat-value">{{ formatCurrency(stats.revenue) }}</p>
-            <span class="stat-sub">Réservations confirmées</span>
+            <span class="stat-sub">{{ $t('admin.confirmed_reservations') }}</span>
           </div>
         </div>
 
@@ -30,9 +30,9 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8"></path><path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"></path><path d="M3 18h18"></path></svg>
           </div>
           <div class="stat-info">
-            <h3>Occupation</h3>
+            <h3>{{ $t('admin.occupancy') }}</h3>
             <p class="stat-value">{{ stats.occupancy.rate }}%</p>
-            <span class="stat-sub">{{ stats.occupancy.occupied }} / {{ stats.occupancy.total }} chambres</span>
+            <span class="stat-sub">{{ $t('admin.rooms_stats', { occupied: stats.occupancy.occupied, total: stats.occupancy.total }) }}</span>
           </div>
         </div>
 
@@ -42,10 +42,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           </div>
           <div class="stat-info">
-            <h3>À valider</h3>
+            <h3>{{ $t('admin.to_validate') }}</h3>
             <p class="stat-value">{{ stats.pendingReservations }}</p>
             <RouterLink to="/admin/reservations" class="action-btn">
-              Gérer les réservations
+              {{ $t('admin.manage_reservations') }}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </RouterLink>
           </div>
@@ -57,10 +57,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
           </div>
           <div class="stat-info">
-            <h3>Note moyenne</h3>
+            <h3>{{ $t('admin.average_rating') }}</h3>
             <p class="stat-value">{{ stats.reviews.averageRating }}<span class="out-of">/5</span></p>
             <RouterLink to="/admin/reviews" class="action-btn">
-              Voir les avis
+              {{ $t('admin.see_reviews') }}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </RouterLink>
           </div>
@@ -72,10 +72,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           </div>
           <div class="stat-info">
-            <h3>Chambres</h3>
-            <p class="card-desc">Gérez votre inventaire et les tarifs</p>
+            <h3>{{ $t('admin.manage_rooms') }}</h3>
+            <p class="card-desc">{{ $t('admin.manage_inventory') }}</p>
             <RouterLink to="/admin/rooms" class="action-btn secondary">
-              Accéder au gestionnaire
+              {{ $t('admin.access_manager') }}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </RouterLink>
           </div>
@@ -87,10 +87,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
           </div>
           <div class="stat-info">
-            <h3>Utilisateurs</h3>
-            <p class="card-desc">Gérez les comptes clients et admin</p>
+            <h3>{{ $t('admin.users_list') }}</h3>
+            <p class="card-desc">{{ $t('admin.manage_users_desc') }}</p>
             <RouterLink to="/admin/users" class="action-btn secondary">
-              Liste des membres
+              {{ $t('admin.members_list') }}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </RouterLink>
           </div>

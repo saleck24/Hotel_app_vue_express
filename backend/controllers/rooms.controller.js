@@ -1,4 +1,5 @@
 const Room = require("../models/rooms.model");
+const Reservation = require("../models/reservation.model");
 const path = require("path");
 
 const formatRoom = (room) => {
@@ -51,8 +52,18 @@ exports.getRooms = async (req, res) => {
   const limit = parseInt(req.query.limit) || 3;
 
   try {
+    // ── Auto-update : libérer les chambres dont la réservation est expirée ──
+    const [expiredRows] = await Reservation.findExpiredActive();
+    if (expiredRows.length > 0) {
+      for (const row of expiredRows) {
+        await Room.updateStatut(row.chambre_id, 'DISPONIBLE');
+      }
+      await Reservation.markExpiredAsTerminated();
+      console.log(`[Auto-update] ${expiredRows.length} chambre(s) remises à DISPONIBLE.`);
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     let rows;
-    // Si pas de pagination demandée, retourner toutes les chambres
     if (!page) {
       [rows] = await Room.findAllWithoutLimit();
     } else {
@@ -67,6 +78,7 @@ exports.getRooms = async (req, res) => {
     res.status(500).json({ message: "Erreur récupération chambres", error: err.message });
   }
 };
+
 
 
 // Récupérer une chambre par ID
@@ -126,3 +138,35 @@ exports.deleteRoom = async (req, res) => {
     res.status(500).json({ message: "Erreur suppression chambre", error: err });
   }
 };
+
+// Vérifier la disponibilité des chambres sur une période
+// GET /api/rooms/availability?date_debut=YYYY-MM-DD&date_fin=YYYY-MM-DD
+exports.getRoomsAvailability = async (req, res) => {
+  const { date_debut, date_fin } = req.query;
+
+  if (!date_debut || !date_fin) {
+    return res.status(400).json({ message: "Les paramètres date_debut et date_fin sont requis." });
+  }
+
+  if (new Date(date_debut) >= new Date(date_fin)) {
+    return res.status(400).json({ message: "La date de début doit être antérieure à la date de fin." });
+  }
+
+  try {
+    const [allRooms] = await Room.findAllWithoutLimit();
+    const [occupiedRows] = await Reservation.findOccupiedRoomIds(date_debut, date_fin);
+
+    const occupiedIds = new Set(occupiedRows.map((r) => r.chambre_id));
+
+    const result = allRooms.map((room) => ({
+      ...formatRoom(room),
+      estOccupee: occupiedIds.has(room.id),
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Erreur vérification disponibilité :", err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+

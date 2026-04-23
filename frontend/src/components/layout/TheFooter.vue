@@ -5,26 +5,27 @@
         <div class="brand" style="color: white; margin-bottom: 1.5rem; font-size: 1.5rem;">
           Hotel<span class="brand-accent">App</span>
         </div>
-        <p>Votre confort est notre priorité. Vivez le meilleur séjour avec nous.</p>
+        <p>{{ $t('footer.about') }}</p>
       </div>
       <div class="footer-section">
-        <h4 class="footer-heading">Liens Rapides</h4>
+        <h4 class="footer-heading">{{ $t('footer.links') }}</h4>
         <ul>
-          <li><RouterLink to="/">Accueil</RouterLink></li>
-          <li><RouterLink to="/rooms">Chambres</RouterLink></li>
-          <li><RouterLink to="/login">Connexion</RouterLink></li>
+          <li><RouterLink to="/">{{ $t('nav.home') }}</RouterLink></li>
+          <li><RouterLink to="/rooms">{{ $t('nav.rooms') }}</RouterLink></li>
+          <li><RouterLink to="/login">{{ $t('nav.login') }}</RouterLink></li>
         </ul>
       </div>
       <div class="footer-section">
-        <h4 class="footer-heading">Contact</h4>
-        <p>Nouakchott, Mauritanie</p>
+        <h4 class="footer-heading">{{ $t('footer.contact') }}</h4>
+        <p>{{ $t('footer.location') }}</p>
         <p>+222 44076356</p>
         <p>hotelapp023@gmail.com</p>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; {{ new Date().getFullYear() }} Hotel App. Tous droits réservés.</p>
+      <p>&copy; {{ new Date().getFullYear() }} Hotel App. {{ $t('footer.rights') }}</p>
     </div>
+
   </footer>
 </template>
 

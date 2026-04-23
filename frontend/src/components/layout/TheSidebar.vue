@@ -8,27 +8,28 @@
 
     <nav class="sidebar-nav">
       <ul v-if="role === 'admin'">
-        <li><RouterLink to="/admin" exact-active-class="active">Tableau de Bord</RouterLink></li>
-        <li><RouterLink to="/admin/rooms" active-class="active">Chambres</RouterLink></li>
-        <li><RouterLink to="/admin/reservations" active-class="active">Réservations</RouterLink></li>
-        <li><RouterLink to="/admin/users" active-class="active">Utilisateurs</RouterLink></li>
-        <li><RouterLink to="/admin/profile" active-class="active">Profil</RouterLink></li>
-        <li><RouterLink to="/admin/reviews" active-class="active">Avis</RouterLink></li>
-        <li><RouterLink to="/admin/chat" active-class="active">Chat</RouterLink></li>
+        <li><RouterLink to="/admin" exact-active-class="active">{{ $t('sidebar.dashboard') }}</RouterLink></li>
+        <li><RouterLink to="/admin/rooms" active-class="active">{{ $t('sidebar.rooms') }}</RouterLink></li>
+        <li><RouterLink to="/admin/reservations" active-class="active">{{ $t('sidebar.reservations') }}</RouterLink></li>
+        <li><RouterLink to="/admin/users" active-class="active">{{ $t('sidebar.users') }}</RouterLink></li>
+        <li><RouterLink to="/admin/profile" active-class="active">{{ $t('sidebar.profile') }}</RouterLink></li>
+        <li><RouterLink to="/admin/reviews" active-class="active">{{ $t('sidebar.reviews') }}</RouterLink></li>
+        <li><RouterLink to="/admin/chat" active-class="active">{{ $t('sidebar.chat') }}</RouterLink></li>
       </ul>
       <ul v-else>
-        <li><RouterLink to="/client" exact-active-class="active">Tableau de Bord</RouterLink></li>
-        <li><RouterLink to="/client/reservations" active-class="active">Mes Réservations</RouterLink></li>
-        <li><RouterLink to="/client/profile" active-class="active">Profil</RouterLink></li>
-        <li><RouterLink to="/client/chat" active-class="active">Chat</RouterLink></li>
+        <li><RouterLink to="/client" exact-active-class="active">{{ $t('sidebar.dashboard') }}</RouterLink></li>
+        <li><RouterLink to="/client/reservations" active-class="active">{{ $t('sidebar.my_reservations') }}</RouterLink></li>
+        <li><RouterLink to="/client/profile" active-class="active">{{ $t('sidebar.profile') }}</RouterLink></li>
+        <li><RouterLink to="/client/chat" active-class="active">{{ $t('sidebar.chat') }}</RouterLink></li>
       </ul>
     </nav>
 
     <div class="sidebar-footer">
       <button @click="handleLogout" class="sidebar-logout-btn">
-        Déconnexion
+        {{ $t('sidebar.logout') }}
       </button>
     </div>
+
   </aside>
 </template>
 

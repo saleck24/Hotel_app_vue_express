@@ -32,9 +32,22 @@ exports.createReservation = async (req, res) => {
     if (conflicts.length > 0) return res.status(400).json({ message: "Chambre indisponible" });
 
     const total = nuits * chambre.prix;
-    await Reservation.create({ utilisateur_id: req.user.id, chambre_id, date_debut, date_fin, total });
+    const [result] = await Reservation.create({ utilisateur_id: req.user.id, chambre_id, date_debut, date_fin, total });
+
+    // Notification temps réel pour l'admin
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('newReservation', {
+        id: result.insertId,
+        user: req.user.nom,
+        room: chambre.numero,
+        total,
+        date: new Date()
+      });
+    }
 
     res.status(201).json({ message: "Réservation en attente", total });
+
 
   } catch (err) {
     console.error("Exception createReservation :", err);
@@ -109,9 +122,15 @@ exports.validerReservation = async (req, res) => {
 
     await Reservation.updateStatut(reservationId, "CONFIRMEE");
 
+    // Système de fidélité : 1 point par tranche de 100 MRU
+    const pointsGagnes = Math.floor(reservation.total / 100);
+    await bd.query("UPDATE users SET points = points + ? WHERE id = ?", [pointsGagnes, reservation.utilisateur_id]);
+    console.log(`[Fidélité] ${pointsGagnes} points ajoutés à l'utilisateur ${reservation.utilisateur_id}`);
+
     // Update explicitly to OCCUPEE and log it
     console.log(`[Validation] Updating room ${reservation.chambre_id} status to OCCUPEE`);
     await Room.updateStatut(reservation.chambre_id, "OCCUPEE");
+
 
     // Générer le PDF dans un Buffer
     const pdfBuffer = await new Promise((resolve, reject) => {

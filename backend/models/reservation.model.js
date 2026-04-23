@@ -86,6 +86,39 @@ const Reservation = {
     `;
     return bd.query(sql, [id]);
   },
+
+  // Retourner les IDs de chambres occupées pendant une période donnée
+  findOccupiedRoomIds: (date_debut, date_fin) => {
+    const sql = `
+      SELECT DISTINCT chambre_id
+      FROM reservations
+      WHERE statut IN ('EN_ATTENTE', 'CONFIRMEE')
+        AND NOT (date_fin <= ? OR date_debut >= ?)
+    `;
+    return bd.query(sql, [date_debut, date_fin]);
+  },
+
+  // Trouver les réservations actives dont la date de fin est déjà passée
+  findExpiredActive: () => {
+    const sql = `
+      SELECT DISTINCT chambre_id
+      FROM reservations
+      WHERE statut IN ('EN_ATTENTE', 'CONFIRMEE')
+        AND date_fin < CURDATE()
+    `;
+    return bd.query(sql);
+  },
+
+  // Marquer comme TERMINEE toutes les réservations expirées
+  markExpiredAsTerminated: () => {
+    const sql = `
+      UPDATE reservations
+      SET statut = 'TERMINEE'
+      WHERE statut IN ('EN_ATTENTE', 'CONFIRMEE')
+        AND date_fin < CURDATE()
+    `;
+    return bd.query(sql);
+  },
 };
 
 module.exports = Reservation;
