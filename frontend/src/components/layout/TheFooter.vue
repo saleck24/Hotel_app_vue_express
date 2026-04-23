@@ -18,7 +18,7 @@
       <div class="footer-section">
         <h4 class="footer-heading">{{ $t('footer.contact') }}</h4>
         <p>{{ $t('footer.location') }}</p>
-        <p>+222 44076356</p>
+        <p>+222 43455259</p>
         <p>hotelapp023@gmail.com</p>
       </div>
     </div>
@@ -28,6 +28,8 @@
 
   </footer>
 </template>
+<script setup>
+</script>
 
 <style scoped>
 .footer {

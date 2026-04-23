@@ -14,6 +14,7 @@
           :class="['message-wrapper', msg.from_user_id === authStore.user?.id ? 'sent' : 'received']"
         >
           <div class="message-bubble">
+            <div v-if="msg.from_user_id !== authStore.user?.id" class="sender-name">{{ msg.sender_name }}</div>
             <div class="message-text">{{ msg.message }}</div>
             <div class="message-time">{{ formatTime(msg.created_at) }}</div>
           </div>
@@ -112,11 +113,12 @@ onMounted(() => {
   socket.connect()
   
   socket.on('receive_message', (data) => {
-    // Check if message is from the admin we are talking to
-    if (data.fromUserId == adminId.value) {
+    // Si c'est un message du support (admin) ou de l'admin sélectionné
+    if (data.sender_name || data.fromUserId == adminId.value) {
       messages.value.push({
         id: Date.now(),
         from_user_id: data.fromUserId,
+        sender_name: data.sender_name || "Support Client",
         message: data.message,
         created_at: data.timestamp
       })
@@ -162,8 +164,9 @@ onUnmounted(() => {
 }
 
 :global(.dark) .chat-header {
-  background-color: var(--color-surface);
+  background-color: var(--color-primary);
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  color: white;
 }
 
 .chat-header h3 {
@@ -215,6 +218,13 @@ onUnmounted(() => {
 .message-text {
   word-break: normal;
   overflow-wrap: break-word;
+}
+
+.sender-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--color-secondary);
 }
 
 .message-time {

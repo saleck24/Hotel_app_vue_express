@@ -22,6 +22,7 @@
              <div v-if="messages.length === 0" class="no-msg">Aucun message trouvé.</div>
              <div v-for="msg in messages" :key="msg.id" :class="['message-wrapper', msg.from_user_id === authStore.user?.id ? 'sent' : 'received']">
                <div class="message-bubble">
+                 <div v-if="msg.from_user_id !== selectedUser.id && msg.from_user_id !== authStore.user?.id" class="sender-name">{{ msg.sender_name }}</div>
                  <div class="message-text">{{ msg.message }}</div>
                  <div class="message-time">{{ formatTime(msg.created_at) }}</div>
                </div>
@@ -126,6 +127,7 @@ onMounted(() => {
       messages.value.push({
         id: Date.now(),
         from_user_id: data.fromUserId,
+        sender_name: data.sender_name,
         message: data.message,
         created_at: data.timestamp
       })
@@ -236,6 +238,13 @@ onUnmounted(() => {
 .message-text {
   word-break: normal;
   overflow-wrap: break-word;
+}
+
+.sender-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: #c5a059;
 }
 
 .message-time {

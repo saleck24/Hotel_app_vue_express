@@ -30,7 +30,7 @@ exports.getMessages = async (req, res) => {
   try {
     const otherUserId = req.params.userId;
 
-    const [rows] = await Message.findByUsers(req.user.id, otherUserId);
+    const rows = await Message.findByUsers(req.user.id, otherUserId, req.user.role);
 
     res.status(200).json(rows);
 
@@ -43,7 +43,7 @@ exports.getMessages = async (req, res) => {
 // Récupérer la liste des conversations
 exports.getConversations = async (req, res) => {
   try {
-    const rows = await Message.getConversations(req.user.id);
+    const rows = await Message.getConversations(req.user.id, req.user.role);
     res.status(200).json(rows);
   } catch (err) {
     console.error("Erreur getConversations :", err);
